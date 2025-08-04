@@ -76,7 +76,7 @@ This project is divided into two parts:
 
 1. Import the Archive to your PYNQ board via Jupyter Notebook
 
-2. Export the Archive:
+2. Decompress the Archive:
     ```bash
     mkdir pynq_maldetect
     tar -xvzf pynq_maldetect.tar.gz -C ./pynq_maldetect
