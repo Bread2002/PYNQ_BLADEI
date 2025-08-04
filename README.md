@@ -78,6 +78,7 @@ This project is divided into two parts:
 
 2. Export the Archive:
     ```bash
+    mkdir pynq_maldetect
     tar -xvzf pynq_maldetect.tar.gz -C ./pynq_maldetect
     rm pynq_maldetect.tar.gz
     cd pynq_maldetect
