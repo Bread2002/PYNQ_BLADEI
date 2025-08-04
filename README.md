@@ -5,7 +5,7 @@
 
 ## 📌 Project Overview
 
-This repository contains the embedded deployment pipeline for detecting **malicious FPGA bitstreams** using a trained machine learning model. Bitstreams are configuration files that can be weaponized to introduce hardware Trojans, posing serious risks in shared or cloud-hosted reconfigurable systems. This project leverages a lightweight, byte-level classification approach and enables **on-device malware detection** for the **Xilinx PYNQ-Z1** board, without requiring reverse engineering techniques or access to original source code or netlists. Benchmark designs, including AES-128 and RS232 variants, were obtained from Trust-Hub, then synthesized, implemented, and categorized as benign, malicious, or empty `.bit` files.
+This repository contains an embedded deployment pipeline for detecting **malicious FPGA bitstreams** using a trained machine learning model. Bitstreams are configuration files that can be weaponized to introduce hardware Trojans, posing serious risks in shared or cloud-hosted reconfigurable systems. This project leverages a lightweight, byte-level classification approach and enables **on-device malware detection** for the **Xilinx PYNQ-Z1** board, without requiring reverse engineering techniques or access to original source code or netlists. Benchmark designs, including AES-128 and RS232 variants, were obtained from Trust-Hub, then synthesized, implemented, and categorized as benign, malicious, or empty `.bit` files.
 
 ---
 
