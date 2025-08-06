@@ -1,4 +1,4 @@
-# **Machine Learning-Based Detection of Simulated Malware in FPGA Bitstreams**
+# **Real-time ML-based Defense Against Malicious Payload in Reconfigurable Embedded Systems**
 ### *Copyright (c) 2025, Rye Stahle-Smith* 
 
 ---
