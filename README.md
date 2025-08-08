@@ -1,4 +1,4 @@
-# **Real-time ML-based Defense Against Malicious Payload in Reconfigurable Embedded Systems**
+# **Machine Learning-Based Detection of Simulated Malware in FPGA Bitstreams**
 ### *Copyright (c) 2025, Rye Stahle-Smith* 
 
 ---
@@ -63,7 +63,7 @@ This project is divided into two parts:
 - Dimensionality reduction via TSVD  
 - Class balancing with SMOTE  
 - Training multiple classifiers (e.g., Random Forest, SVM)  
-- Evaluation using Stratified k-Fold Cross-Validation  
+- Evaluation using k-Fold Cross-Validation  
 - Model and TSVD components exported as a `.tar.gz` archive for use on PYNQ
 
 ---
@@ -72,16 +72,16 @@ This project is divided into two parts:
 
 > **Requirements:**
 > - PYNQ-Z1 board with Python 3.x
-> - Pre-trained model archive (pynq_maldetect.tar.gz)
+> - Pre-trained model archive (PYNQ_BLADEI.tar.gz)
 
 1. Import the Archive to your PYNQ board via Jupyter Notebook
 
 2. Decompress the Archive:
     ```bash
-    mkdir pynq_maldetect
-    tar -xvzf pynq_maldetect.tar.gz -C ./pynq_maldetect
-    rm pynq_maldetect.tar.gz
-    cd pynq_maldetect
+    mkdir PYNQ_BLADEI
+    tar -xvzf PYNQ_BLADEI.tar.gz -C ./PYNQ_BLADEI
+    rm PYNQ_BLADEI.tar.gz
+    cd PYNQ_BLADEI
     ```
 
 3. Install Dependencies:
@@ -107,53 +107,53 @@ This project is divided into two parts:
 ---
 
 ## 📈 Example Output
-*** Trial 1: Processing RS232_T1500_Trojan.bit... ***<br>
-Actual Class:    Malicious (Class 2)<br>
-Predicted Class: Malicious (Class 2)<br>
+*** Trial 1: Processing RS232_T800_Trojan.bit... ***<br>
+Actual Class:    Malicious RS232 (Class 4)<br>
+Predicted Class: Malicious RS232 (Class 4)<br>
 
 === Latency Summary ===<br>
-Load Bitstream:      195.81 ms<br>
-Feature Extraction:  3096.98 ms<br>
-Prediction:          23.86 ms<br>
+Load Bitstream:      185.46 ms<br>
+Feature Extraction:  3173.30 ms<br>
+Prediction:          33.11 ms<br>
 
-*** Trial 2: Processing empty27.bit... ***<br>
+*** Trial 2: Processing empty19.bit... ***<br>
 Actual Class:    Empty (Class 0)<br>
 Predicted Class: Empty (Class 0)<br>
 
 === Latency Summary ===<br>
-Load Bitstream:      223.81 ms<br>
-Feature Extraction:  3098.21 ms<br>
-Prediction:          13.48 ms<br>
+Load Bitstream:      189.54 ms<br>
+Feature Extraction:  3236.65 ms<br>
+Prediction:          17.39 ms<br>
 
-*** Trial 3: Processing empty27.bit... ***<br>
+*** Trial 3: Processing empty19.bit... ***<br>
 Actual Class:    Empty (Class 0)<br>
 Predicted Class: Empty (Class 0)<br>
 
 === Latency Summary ===<br>
-Load Bitstream:      24.16 ms<br>
-Feature Extraction:  3095.33 ms<br>
-Prediction:          18.85 ms<br>
+Load Bitstream:      26.22 ms<br>
+Feature Extraction:  3234.33 ms<br>
+Prediction:          14.55 ms<br>
 
-*** Trial 4: Processing AES_T700.bit... ***<br>
-Actual Class:    Benign (Class 1)<br>
-Predicted Class: Benign (Class 1)<br>
-
-=== Latency Summary ===<br>
-Load Bitstream:      188.02 ms<br>
-Feature Extraction:  3096.70 ms<br>
-Prediction:          21.86 ms<br>
-
-*** Trial 5: Processing RS232_T1900.bit... ***<br>
-Actual Class:    Benign (Class 1)<br>
-Predicted Class: Benign (Class 1)<br>
+*** Trial 4: Processing RS232_T1300_Trojan.bit... ***<br>
+Actual Class:    Malicious RS232 (Class 4)<br>
+Predicted Class: Malicious RS232 (Class 4)<br>
 
 === Latency Summary ===<br>
-Load Bitstream:      188.15 ms<br>
-Feature Extraction:  3097.69 ms<br>
-Prediction:          21.89 ms<br>
+Load Bitstream:      188.12 ms<br>
+Feature Extraction:  3234.87 ms<br>
+Prediction:          17.22 ms<br>
+
+*** Trial 5: Processing RS232_T200_Trojan.bit... ***<br>
+Actual Class:    Malicious RS232 (Class 4)<br>
+Predicted Class: Malicious RS232 (Class 4)<br>
+
+=== Latency Summary ===<br>
+Load Bitstream:      187.22 ms<br>
+Feature Extraction:  3235.79 ms<br>
+Prediction:          16.80 ms<br>
 
 
-Average Latency: 3.28 s<br>
+Average Latency: 3.40 s<br>
 
 ---
 
