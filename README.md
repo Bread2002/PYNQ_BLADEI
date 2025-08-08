@@ -1,4 +1,4 @@
-# **Machine Learning-Based Detection of Simulated Malware in FPGA Bitstreams**
+# **BLADEI: Bitstream-Level Abnormality Detection for Embedded Inference**
 ### *Copyright (c) 2025, Rye Stahle-Smith* 
 
 ---
