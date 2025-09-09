@@ -5,7 +5,7 @@
 
 ## 📌 Project Overview
 
-This repository contains an embedded deployment pipeline for detecting **malicious FPGA bitstreams** using a trained machine learning (ML) model. Bitstreams are configuration files that can be weaponized to introduce hardware Trojans, posing serious risks in shared or cloud-hosted reconfigurable systems. This project leverages a lightweight, byte-level classification approach and enables **on-device malware detection** for the **Xilinx PYNQ-Z1** board, without requiring reverse engineering techniques or access to original source code or netlists. Benchmark designs, including AES-128 and RS232 variants, were obtained from Trust-Hub, then synthesized, implemented, and categorized as benign, malicious, or empty `.bit` files.
+This repository contains an embedded deployment pipeline for detecting **malicious FPGA bitstreams** using a trained machine learning (ML) model. Bitstreams are configuration files that can be weaponized to introduce hardware Trojans, posing serious risks in shared or cloud-hosted reconfigurable systems. This project leverages a lightweight, byte-level classification approach and enables **on-device malware detection** for the **PYNQ-supported FPGA boards**, without requiring reverse engineering techniques or access to original source code or netlists. Benchmark designs, including AES-128 and RS232 variants, were obtained from Trust-Hub, then synthesized, implemented, and categorized as benign, malicious, or empty `.bit` files.
 
 ---
 
@@ -14,7 +14,7 @@ This repository contains an embedded deployment pipeline for detecting **malicio
 - 🔍 **Byte-frequency analysis** of binary `.bit` files
 - 📉 Dimensionality reduction and class balancing via **TSVD** and **SMOTE**
 - 📊 Real-time inference using trained **scikit-learn classifiers** (e.g., Random Forest)
-- ⚡ Deployment-ready for **PYNQ-Z1 (Zynq-7000 SoC)**
+- ⚡ Deployment-ready for **ARMv7 (e.g., PYNQ-Z1/Z2, Zynq-7000 SoC)** and **ARMv8 (e.g., Zynq UltraScale+ MPSoC, RFSoC, Kria) boards**.
 - 🧪 Verified with state-of-the-art (SOTA) bitstreams derived from **Trust-Hub** benchmarks
 
 ---
@@ -35,25 +35,33 @@ pynq-maldetect/<br>
 
 This project is divided into two parts:
 
-- 🧠 **Model Training and Export** (Run on your local machine or server with a standard CPU)
-- ⚙️ **On-Device Inference** (Run on the PYNQ-Z1 board)
+- 🧠 **Model Training and Export**
+- ⚙️ **On-Device Inference**
 
 ---
 
-### 🧠 `train_model.ipynb` — Model Training and Export (CPU Only)
+### 🧠 `train_model.ipynb` — Model Training and Export
 
 > **Requirements:**
 > - Python 3.8+
-> - `scikit-learn`, `numpy`, `pandas`, `matplotlib`, `imblearn`  
-> - *Do not attempt this on PYNQ. Training is too resource-intensive and `scikit-learn` is not supported for ARM.*
+> - Python Packages: `scikit-learn`, `numpy`, `scipy`, `pandas`, `joblib`, `imblearn`  
+
+> ⚠️ **Note:**
+> On **ARMv7 (32-bit)** boards (e.g., PYNQ-Z1/Z2), training is not supported. These boards lack prebuilt scikit-learn wheels and have insufficient resources for model training. Use a general-purpose CPU (e.g., laptop, workstation, or server) instead.
+> On **ARMv8 (64-bit)** boards (e.g., Zynq UltraScale+, Kria, RFSoC), you may train directly on the board if sufficient resources are available.
 
 1. Clone the Repository:
    ```bash
-   git clone https://github.com/Bread2002/pynq-maldetect.git
-   cd pynq-maldetect
+   git clone https://github.com/Bread2002/PYNQ_BLADEI.git
+   cd PYNQ_BLADEI
+   ```
+   
+2. Install Dependencies:
+   ```bash
+   pip install -r requirements.txt
    ```
 
-2. Run the Training Script:
+3. Run the Training Script:
    ```bash
     jupyter notebook train_model.ipynb
    ```
@@ -64,15 +72,20 @@ This project is divided into two parts:
 - Class balancing with SMOTE  
 - Training multiple classifiers (e.g., Random Forest, SVM)  
 - Evaluation using k-Fold Cross-Validation  
-- Model and TSVD components exported as a `.tar.gz` archive for use on PYNQ
+- Model and TSVD components exported as a `.tar.gz` archive for PYNQ deployment on ARMv7 boards
 
 ---
 
-### ⚙️ `deploy_model.ipynb` — On-Device Inference (PYNQ-Z1)
+### ⚙️ `deploy_model.ipynb` — On-Device Inference
 
 > **Requirements:**
-> - PYNQ-Z1 board with Python 3.x
-> - Pre-trained model archive (PYNQ_BLADEI.tar.gz)
+> - A supported FPGA board with PYNQ v3.1
+> - Serialized model components (via on-board training or exported archive)
+
+> ⚠️ **Note:**
+> If you are on an **ARMv8 (64-bit)** board (e.g., UltraScale+, Kria, RFSoC), you may have trained directly on the device. In this case, *skip to Step 3*.
+> If you are on an **ARMv7 (32-bit)** board (e.g., PYNQ-Z1/Z2), *begin at Step 1*. Since you cannot train on the board, you must import the archive.
+
 
 1. Import the Archive to your PYNQ board via Jupyter Notebook
 
@@ -84,12 +97,7 @@ This project is divided into two parts:
     cd PYNQ_BLADEI
     ```
 
-3. Install Dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. Run the Deployment Script:
+3. Run the Deployment Script:
    ```bash
    jupyter notebook deploy_model.ipynb
    ```
@@ -159,14 +167,14 @@ Average Latency: 3.40 s<br>
 
 ## 🤝 Acknowledgments
 This work was supported by the McNair Junior Fellowship and Office of Undergraduate Research at the University of South Carolina. The authors used OpenAl's ChatGPT to assist with language and grammar correction. While this project utilizes benchmark designs from Trust-Hub, a resource sponsored by the National Science Foundation (NSF), all technical content and analysis were independently developed by the authors.
-This research also made use of the PYNQ-Z1 FPGA platform, provided by AMD and Xilinx, whose tools and hardware enabled the synthesis and deployment stages of this study.
+This research also made use of the PYNQ platform, provided by AMD and Xilinx, whose tools and hardware enabled the synthesis and deployment stages of this study.
 
 ---
 
 ## 🛠️ Future Work
 - Improve detection latency with quantized ML models
 - Integrate live USB bitstream capture
-- Expand support for additional FPGA boards
+- ~~Expand support for additional FPGA boards~~
 
 ## 🖊️ References
 > - AMD. (2024). PYNQ: Python Productivity for Zynq. Retrieved from https://www.pynq.io
