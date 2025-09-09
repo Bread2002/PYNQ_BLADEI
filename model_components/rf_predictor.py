@@ -1,11 +1,12 @@
 import numpy as np
 import json
+import os
 from collections import Counter
 
-tsvd_components = np.load("tsvd_components.npy")
+tsvd_components = np.load(os.path.join(os.path.dirname(__file__), "tsvd_components.npy"))
 n_classes = 5
 
-with open("rf_forest.json", "r") as f:
+with open(os.path.join(os.path.dirname(__file__), "rf_forest.json"), "r") as f:
     forest = json.load(f)
 
 def transform_tsvd(x, components):
