@@ -47,7 +47,7 @@ This project is divided into two parts:
 > - Python Packages: `scikit-learn`, `numpy`, `scipy`, `pandas`, `joblib`, `imblearn`  
 
 > ⚠️ **Note:**
-> On **ARMv7 (32-bit)** boards (e.g., PYNQ-Z1/Z2), training is not supported. These boards lack prebuilt scikit-learn wheels and have insufficient resources for model training. Use a general-purpose CPU (e.g., laptop, workstation, or server) instead.
+> On **ARMv7 (32-bit)** boards (e.g., PYNQ-Z1/Z2), training is not supported. These boards lack prebuilt scikit-learn wheels and have insufficient resources for model training. Use a general-purpose CPU (e.g., laptop, workstation, or server) instead.<br>
 > On **ARMv8 (64-bit)** boards (e.g., Zynq UltraScale+, Kria, RFSoC), you may train directly on the board if sufficient resources are available.
 
 1. Clone the Repository:
@@ -83,7 +83,7 @@ This project is divided into two parts:
 > - Serialized model components (via on-board training or exported archive)
 
 > ⚠️ **Note:**
-> If you are on an **ARMv8 (64-bit)** board (e.g., UltraScale+, Kria, RFSoC), you may have trained directly on the device. In this case, *skip to Step 3*.
+> If you are on an **ARMv8 (64-bit)** board (e.g., UltraScale+, Kria, RFSoC), you may have trained directly on the device. In this case, *skip to Step 3*.<br>
 > If you are on an **ARMv7 (32-bit)** board (e.g., PYNQ-Z1/Z2), *begin at Step 1*. Since you cannot train on the board, you must import the archive.
 
 
