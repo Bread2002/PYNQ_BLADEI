@@ -69,7 +69,7 @@ This project is divided into two parts:
 
 3. Run the Training Script:
    ```bash
-    jupyter notebook train_model.ipynb
+   python train_model.py
    ```
 
 #### ***Features:***
@@ -105,7 +105,7 @@ This project is divided into two parts:
 
 3. Run the Deployment Script:
    ```bash
-   jupyter notebook deploy_model.ipynb
+   python deploy_model.py
    ```
 
 #### Features:
