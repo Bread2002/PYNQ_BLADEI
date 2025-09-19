@@ -24,9 +24,10 @@ pynq-maldetect/<br>
 ├── trusthub_bitstreams/ ***# Sample `.bit` files (Benign, Malicious, Empty)***<br>
 ├── model_components/ ***# Serialized sklearn model components***<br>
 ├── VirtualEnv/ ***# Virtual environment***<br>
-├── train_model.ipynb ***# Model training and export for PYNQ***<br>
-├── deploy_model.ipynb ***# Model deployment for on-device inference***<br>
+├── train_model.py ***# Model training and export for PYNQ***<br>
+├── deploy_model.py ***# Model deployment for on-device inference***<br>
 ├── requirements.txt ***# Python dependencies***<br>
+├── LICENSE.md<br>
 └── README.md<br>
 
 ---
@@ -40,7 +41,7 @@ This project is divided into two parts:
 
 ---
 
-### 🧠 `train_model.ipynb` — Model Training and Export
+### 🧠 `train_model.py` — Model Training and Export
 
 > **Requirements:**
 > - Python 3.8+
@@ -55,15 +56,21 @@ This project is divided into two parts:
    git clone https://github.com/Bread2002/PYNQ_BLADEI.git
    cd PYNQ_BLADEI
    ```
+
+2. Source the PYNQ Virtual Environment:
+   ```bash
+   source /usr/local/share/pynq-venv/bin/activate
+   ```
    
-2. Install Dependencies:
+3. Install Dependencies:
    ```bash
    pip install -r requirements.txt
+   deactivate
    ```
 
-3. Run the Training Script:
+4. Run the Training Script:
    ```bash
-    jupyter notebook train_model.ipynb
+   python train_model.py
    ```
 
 #### ***Features:***
@@ -76,7 +83,7 @@ This project is divided into two parts:
 
 ---
 
-### ⚙️ `deploy_model.ipynb` — On-Device Inference
+### ⚙️ `deploy_model.py` — On-Device Inference
 
 > **Requirements:**
 > - A supported FPGA board with PYNQ v3.1
@@ -99,7 +106,7 @@ This project is divided into two parts:
 
 3. Run the Deployment Script:
    ```bash
-   jupyter notebook deploy_model.ipynb
+   python deploy_model.py
    ```
 
 #### Features:
@@ -115,53 +122,53 @@ This project is divided into two parts:
 ---
 
 ## 📈 Example Output
-*** Trial 1: Processing RS232_T800_Trojan.bit... ***<br>
+*** Trial 1: Processing AES_T2700.bit... ***<br>
+Actual Class:    Benign AES (Class 1)<br>
+Predicted Class: Benign AES (Class 1)<br>
+
+=== Latency Summary ===<br>
+Load Bitstream:      8.06 ms<br>
+Feature Extraction:  1825.10 ms<br>
+Prediction:          6.52 ms<br>
+
+*** Trial 2: Processing RS232_T1100.bit... ***<br>
+Actual Class:    Benign RS232 (Class 2)<br>
+Predicted Class: Benign RS232 (Class 2)<br>
+
+=== Latency Summary ===<br>
+Load Bitstream:      9.10 ms<br>
+Feature Extraction:  1886.87 ms<br>
+Prediction:          5.76 ms<br>
+
+*** Trial 3: Processing RS232_T900_Trojan.bit... ***<br>
 Actual Class:    Malicious RS232 (Class 4)<br>
 Predicted Class: Malicious RS232 (Class 4)<br>
 
 === Latency Summary ===<br>
-Load Bitstream:      185.46 ms<br>
-Feature Extraction:  3173.30 ms<br>
-Prediction:          33.11 ms<br>
+Load Bitstream:      9.00 ms<br>
+Feature Extraction:  1818.05 ms<br>
+Prediction:          6.03 ms<br>
 
-*** Trial 2: Processing empty19.bit... ***<br>
-Actual Class:    Empty (Class 0)<br>
-Predicted Class: Empty (Class 0)<br>
-
-=== Latency Summary ===<br>
-Load Bitstream:      189.54 ms<br>
-Feature Extraction:  3236.65 ms<br>
-Prediction:          17.39 ms<br>
-
-*** Trial 3: Processing empty19.bit... ***<br>
-Actual Class:    Empty (Class 0)<br>
-Predicted Class: Empty (Class 0)<br>
-
-=== Latency Summary ===<br>
-Load Bitstream:      26.22 ms<br>
-Feature Extraction:  3234.33 ms<br>
-Prediction:          14.55 ms<br>
-
-*** Trial 4: Processing RS232_T1300_Trojan.bit... ***<br>
+*** Trial 4: Processing RS232_T600_Trojan.bit... ***<br>
 Actual Class:    Malicious RS232 (Class 4)<br>
 Predicted Class: Malicious RS232 (Class 4)<br>
 
 === Latency Summary ===<br>
-Load Bitstream:      188.12 ms<br>
-Feature Extraction:  3234.87 ms<br>
-Prediction:          17.22 ms<br>
+Load Bitstream:      7.89 ms<br>
+Feature Extraction:  1817.30 ms<br>
+Prediction:          6.04 ms<br>
 
-*** Trial 5: Processing RS232_T200_Trojan.bit... ***<br>
+*** Trial 5: Processing RS232_T2000_Trojan.bit... ***<br>
 Actual Class:    Malicious RS232 (Class 4)<br>
 Predicted Class: Malicious RS232 (Class 4)<br>
 
 === Latency Summary ===<br>
-Load Bitstream:      187.22 ms<br>
-Feature Extraction:  3235.79 ms<br>
-Prediction:          16.80 ms<br>
+Load Bitstream:      3.91 ms<br>
+Feature Extraction:  1832.92 ms<br>
+Prediction:          6.04 ms<br>
 
 
-Average Latency: 3.40 s<br>
+Average Latency: 1.85 s<br>
 
 ---
 
