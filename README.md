@@ -55,21 +55,15 @@ This project is divided into two parts:
    git clone https://github.com/Bread2002/PYNQ_BLADEI.git
    cd PYNQ_BLADEI
    ```
-
-2. Source the PYNQ Virtual Environment:
-   ```bash
-   source /usr/local/share/pynq-venv/bin/activate
-   ```
    
-3. Install Dependencies:
+2. Install Dependencies:
    ```bash
    pip install -r requirements.txt
-   deactivate
    ```
 
-4. Run the Training Script:
+3. Run the Training Script:
    ```bash
-   python train_model.py
+   jupyter notebook train_model.ipynb
    ```
 
 #### ***Features:***
@@ -105,7 +99,7 @@ This project is divided into two parts:
 
 3. Run the Deployment Script:
    ```bash
-   python deploy_model.py
+   jupyter notebook deploy_model.ipynb
    ```
 
 #### Features:
