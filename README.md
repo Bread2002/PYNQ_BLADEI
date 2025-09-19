@@ -55,10 +55,16 @@ This project is divided into two parts:
    git clone https://github.com/Bread2002/PYNQ_BLADEI.git
    cd PYNQ_BLADEI
    ```
+
+2. Source the PYNQ Virtual Environment:
+   ```bash
+   source /usr/local/share/pynq-venv/bin/activate
+   ```
    
 2. Install Dependencies:
    ```bash
    pip install -r requirements.txt
+   deactivate
    ```
 
 3. Run the Training Script:
