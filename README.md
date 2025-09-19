@@ -27,6 +27,7 @@ pynq-maldetect/<br>
 ├── train_model.ipynb ***# Model training and export for PYNQ***<br>
 ├── deploy_model.ipynb ***# Model deployment for on-device inference***<br>
 ├── requirements.txt ***# Python dependencies***<br>
+├── LICENSE.md<br>
 └── README.md<br>
 
 ---
