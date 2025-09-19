@@ -61,13 +61,13 @@ This project is divided into two parts:
    source /usr/local/share/pynq-venv/bin/activate
    ```
    
-2. Install Dependencies:
+3. Install Dependencies:
    ```bash
    pip install -r requirements.txt
    deactivate
    ```
 
-3. Run the Training Script:
+4. Run the Training Script:
    ```bash
    python train_model.py
    ```
