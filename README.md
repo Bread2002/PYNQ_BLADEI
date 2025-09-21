@@ -5,7 +5,7 @@
 
 ## 📌 Project Overview
 
-This repository contains an embedded deployment pipeline for detecting **malicious FPGA bitstreams** using a trained machine learning (ML) model. Bitstreams are configuration files that can be weaponized to introduce hardware Trojans, posing serious risks in shared or cloud-hosted reconfigurable systems. This project leverages a lightweight, byte-level classification approach and enables **on-device malware detection** for the **PYNQ-supported FPGA boards**, without requiring reverse engineering techniques or access to original source code or netlists. Benchmark designs, including AES-128 and RS232 variants, were obtained from Trust-Hub, then synthesized, implemented, and categorized as benign, malicious, or empty `.bit` files.
+This repository contains an embedded deployment pipeline for detecting **malicious FPGA bitstreams** using a trained machine learning (ML) model. Bitstreams are configuration files that can be weaponized to introduce hardware Trojans, posing serious risks in shared or cloud-hosted reconfigurable systems. This project leverages a lightweight, byte-level classification approach and enables **on-device malware detection** for the **PYNQ-supported FPGA boards**, without requiring reverse engineering techniques or access to original source code or netlists. Benchmark designs, including AES-128 and RS232 variants, were obtained from Trust-Hub, then synthesized, implemented, and categorized as benign, malicious, or empty `.bit` files. Additionally, a CNN-based natural language processing (NLP) model is trained to **cross-check ML predictions** by converting top byte-frequency features into textual representations, providing an extra layer of confirmation for bitstream classification.
 
 ---
 
@@ -14,7 +14,8 @@ This repository contains an embedded deployment pipeline for detecting **malicio
 - 🔍 **Byte-frequency analysis** of binary `.bit` files
 - 📉 Dimensionality reduction and class balancing via **TSVD** and **SMOTE**
 - 📊 Real-time inference using trained **scikit-learn classifiers** (e.g., Random Forest)
-- ⚡ Deployment-ready for **ARMv7 (e.g., PYNQ-Z1/Z2, Zynq-7000 SoC)** and **ARMv8 (e.g., Zynq UltraScale+ MPSoC, RFSoC, Kria) boards**.
+- 📝 CNN-based **NLP cross-checking** for validating ML predictions using text representations of top features
+- ⚡ Deployment-ready for **ARMv7 (e.g., PYNQ-Z1/Z2, Zynq-7000 SoC)** and **ARMv8 (e.g., Zynq UltraScale+ MPSoC, RFSoC, Kria) boards**
 - 🧪 Verified with state-of-the-art (SOTA) bitstreams derived from **Trust-Hub** benchmarks
 
 ---
@@ -22,7 +23,7 @@ This repository contains an embedded deployment pipeline for detecting **malicio
 ## 📂 Repository Structure
 pynq-maldetect/<br>
 ├── trusthub_bitstreams/ ***# Sample `.bit` files (Benign, Malicious, Empty)***<br>
-├── model_components/ ***# Serialized sklearn model components***<br>
+├── model_components/ ***# Serialized ML+NLP model components***<br>
 ├── VirtualEnv/ ***# Virtual environment***<br>
 ├── train_model.py ***# Model training and export for PYNQ***<br>
 ├── deploy_model.py ***# Model deployment for on-device inference***<br>
@@ -78,6 +79,7 @@ This project is divided into two parts:
 - Dimensionality reduction via TSVD  
 - Class balancing with SMOTE  
 - Training multiple classifiers (e.g., Random Forest, SVM)  
+- CNN-based NLP cross-checking to validate ML predictions
 - Evaluation using k-Fold Cross-Validation  
 - Model and TSVD components exported as a `.tar.gz` archive for PYNQ deployment on ARMv7 boards
 
@@ -113,62 +115,73 @@ This project is divided into two parts:
 - Loads `.bit` files from local storage  
 - Extracts sparse and structural features  
 - Applies TSVD transformation  
-- Predicts class (`Benign`, `Malicious`, or `Empty`) using the trained model  
+- Predicts class (`Benign`, `Malicious`, or `Empty`) using the trained model
+- Confirms prediction via CNN-based NLP system
 - Displays prediction result with latency breakdown:
   - Load time  
   - Feature extraction time  
   - Inference time
+  - NLP cross-check time
 
 ---
 
 ## 📈 Example Output
-*** Trial 1: Processing AES_T2700.bit... ***<br>
-Actual Class:    Benign AES (Class 1)<br>
-Predicted Class: Benign AES (Class 1)<br>
+*** Trial 1: Processing empty7.bit... ***<br>
+Actual Class:    Empty (Class 0)<br>
+ML Predicted:    Empty (Class 0)<br>
+NLP Cross-Check: Match<br>
 
 === Latency Summary ===<br>
-Load Bitstream:      8.06 ms<br>
-Feature Extraction:  1825.10 ms<br>
-Prediction:          6.52 ms<br>
+Load Bitstream:      7.34 ms<br>
+Feature Extraction:  1791.22 ms<br>
+Prediction:          5.83 ms<br>
+NLP Confirmation:    536.88 ms<br>
 
-*** Trial 2: Processing RS232_T1100.bit... ***<br>
+*** Trial 2: Processing RS232_T600.bit... ***<br>
 Actual Class:    Benign RS232 (Class 2)<br>
-Predicted Class: Benign RS232 (Class 2)<br>
+ML Predicted:    Benign RS232 (Class 2)<br>
+NLP Cross-Check: Match<br>
 
 === Latency Summary ===<br>
-Load Bitstream:      9.10 ms<br>
-Feature Extraction:  1886.87 ms<br>
-Prediction:          5.76 ms<br>
+Load Bitstream:      8.25 ms<br>
+Feature Extraction:  1913.59 ms<br>
+Prediction:          5.90 ms<br>
+NLP Confirmation:    538.15 ms<br>
 
-*** Trial 3: Processing RS232_T900_Trojan.bit... ***<br>
-Actual Class:    Malicious RS232 (Class 4)<br>
-Predicted Class: Malicious RS232 (Class 4)<br>
-
-=== Latency Summary ===<br>
-Load Bitstream:      9.00 ms<br>
-Feature Extraction:  1818.05 ms<br>
-Prediction:          6.03 ms<br>
-
-*** Trial 4: Processing RS232_T600_Trojan.bit... ***<br>
-Actual Class:    Malicious RS232 (Class 4)<br>
-Predicted Class: Malicious RS232 (Class 4)<br>
+*** Trial 3: Processing AES_T2000_Trojan.bit... ***<br>
+Actual Class:    Malicious AES (Class 3)<br>
+ML Predicted:    Malicious AES (Class 3)<br>
+NLP Cross-Check: Match<br>
 
 === Latency Summary ===<br>
-Load Bitstream:      7.89 ms<br>
-Feature Extraction:  1817.30 ms<br>
-Prediction:          6.04 ms<br>
+Load Bitstream:      7.76 ms<br>
+Feature Extraction:  1840.20 ms<br>
+Prediction:          6.33 ms<br>
+NLP Confirmation:    536.09 ms<br>
 
-*** Trial 5: Processing RS232_T2000_Trojan.bit... ***<br>
-Actual Class:    Malicious RS232 (Class 4)<br>
-Predicted Class: Malicious RS232 (Class 4)<br>
+*** Trial 4: Processing AES_T600.bit... ***<br>
+Actual Class:    Benign AES (Class 1)<br>
+ML Predicted:    Benign AES (Class 1)<br>
+NLP Cross-Check: Match<br>
 
 === Latency Summary ===<br>
-Load Bitstream:      3.91 ms<br>
-Feature Extraction:  1832.92 ms<br>
-Prediction:          6.04 ms<br>
+Load Bitstream:      7.25 ms<br>
+Feature Extraction:  1832.26 ms<br>
+Prediction:          6.30 ms<br>
+NLP Confirmation:    536.31 ms<br>
 
+*** Trial 5: Processing AES_T2100_Trojan.bit... ***<br>
+Actual Class:    Malicious AES (Class 3)<br>
+ML Predicted:    Malicious AES (Class 3)<br>
+NLP Cross-Check: Match<br>
 
-Average Latency: 1.85 s<br>
+=== Latency Summary ===<br>
+Load Bitstream:      7.45 ms<br>
+Feature Extraction:  1821.59 ms<br>
+Prediction:          6.22 ms<br>
+NLP Confirmation:    536.80 ms<br>
+
+Average Latency: 2.39 s<br>
 
 ---
 
@@ -178,9 +191,9 @@ The authors were pleased to have this work accepted for presentation at the 37th
 ---
 
 ## 🛠️ Future Work
-- Add NLP-based confirmation for ML predictions
 - Improve detection latency with quantized ML models
 - Integrate live USB bitstream capture
+- ~~Add NLP-based confirmation for ML predictions~~
 - ~~Expand support for additional FPGA boards~~
 
 ## 🖊️ References
