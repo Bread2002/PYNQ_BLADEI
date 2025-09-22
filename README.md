@@ -46,10 +46,10 @@ This project is divided into two parts:
 
 > **Requirements:**
 > - Python 3.8+
-> - Python Packages: `scikit-learn`, `numpy`, `scipy`, `pandas`, `joblib`, `imblearn`  
+> - Python Packages: `scikit-learn`, `numpy`, `scipy`, `pandas`, `joblib`, `imblearn`, `pytorch`
 
 > ⚠️ **Note:**
-> On **ARMv7 (32-bit)** boards (e.g., PYNQ-Z1/Z2), training is not supported. These boards lack prebuilt scikit-learn wheels and have insufficient resources for model training. Use a general-purpose CPU (e.g., laptop, workstation, or server) instead.<br>
+> On **ARMv7 (32-bit)** boards (e.g., PYNQ-Z1/Z2), training is not supported. These boards lack prebuilt wheels and have insufficient resources for model training. Use a general-purpose CPU (e.g., laptop, workstation, or server) instead.<br>
 > On **ARMv8 (64-bit)** boards (e.g., Zynq UltraScale+, Kria, RFSoC), you may train directly on the board if sufficient resources are available.
 
 1. Clone the Repository:
