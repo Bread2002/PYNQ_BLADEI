@@ -355,7 +355,7 @@ def compress_to_tar_gz(output_file, targets):
 
 def export_pipeline(best_model_name):
     print(f"=== Compressing pipeline for PYNQ Deployment... ===\n")
-    targets = ["trusthub_bitstreams", "model_components", "VirtualEnv", "deploy_model.py", "requirements.txt"]
+    targets = ["trusthub_bitstreams", "model_components", "VirtualEnv", "deploy_model.py"]
     output_file = "PYNQ_BLADEI.tar.gz"
     compress_to_tar_gz(output_file, targets)
     print(f"*** Compression complete! Archive saved as '{output_file}'... ***")
