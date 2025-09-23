@@ -358,7 +358,7 @@ def export_pipeline(best_model_name):
     targets = ["trusthub_bitstreams", "model_components", "VirtualEnv", "deploy_model.py", "requirements.txt"]
     output_file = "PYNQ_BLADEI.tar.gz"
     compress_to_tar_gz(output_file, targets)
-    print(f"\n*** Compression complete! Archive saved as '{output_file}'... ***")
+    print(f"*** Compression complete! Archive saved as '{output_file}'... ***")
 
 # --------------------------
 # Main Execution
