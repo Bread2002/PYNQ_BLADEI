@@ -24,9 +24,8 @@ from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from imblearn.over_sampling import SMOTE
-from torch.optim import AdamW
 from torch.utils.data import Dataset, DataLoader
-from transformers import logging, BertTokenizer, BertModel
+from transformers import logging
 
 # --------------------------
 # Step 0: Suppress Warnings
