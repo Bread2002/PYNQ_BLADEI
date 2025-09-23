@@ -9,7 +9,6 @@ import psutil
 import time
 import warnings
 import numpy as np
-from transformers import logging
 from collections import Counter
 from model_components.cnn_confirmation import load_nlp_model, nlp_cross_check
 from model_components.rf_predictor import predict_bitstream
@@ -17,7 +16,6 @@ from model_components.rf_predictor import predict_bitstream
 # --------------------------
 # Step 0: Suppress Warnings
 # --------------------------
-logging.set_verbosity_error()
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
