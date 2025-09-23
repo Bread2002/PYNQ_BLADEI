@@ -24,7 +24,6 @@ This repository contains an embedded deployment pipeline for detecting **malicio
 pynq-maldetect/<br>
 ├── trusthub_bitstreams/ ***# Sample `.bit` files (Benign, Malicious, Empty)***<br>
 ├── model_components/ ***# Serialized ML+NLP model components***<br>
-├── VirtualEnv/ ***# Virtual environment***<br>
 ├── train_model.py ***# Model training and export for PYNQ***<br>
 ├── deploy_model.py ***# Model deployment for on-device inference***<br>
 ├── requirements.txt ***# Python dependencies***<br>
