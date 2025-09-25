@@ -194,7 +194,7 @@ The authors were pleased to have this work accepted for presentation at the 37th
 ---
 
 ## 🛠️ Future Work
-- Improve detection latency with quantized ML models
+- ~~Improve detection latency with quantized models~~
 - Integrate live USB bitstream capture
 - ~~Add NLP-based confirmation for ML predictions~~
 - ~~Expand support for additional FPGA boards~~
