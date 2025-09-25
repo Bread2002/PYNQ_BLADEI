@@ -11,7 +11,6 @@ import warnings
 import torch
 import numpy as np
 import torch.nn as nn
-from joblib import dump, load
 from collections import Counter
 from scipy.sparse import csr_matrix
 from sklearn.decomposition import TruncatedSVD
@@ -25,12 +24,10 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from imblearn.over_sampling import SMOTE
 from torch.utils.data import Dataset, DataLoader
-from transformers import logging
 
 # --------------------------
 # Step 0: Suppress Warnings
 # --------------------------
-logging.set_verbosity_error()
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -295,55 +292,46 @@ def train_nlp_model(texts, labels, num_classes=5, epochs=20, batch_size=16):
     return model, tokenizer
 
 # --------------------------
-# Step 9: Serialize ML+NLP Model
+# Step 9: Quantize ML+NLP Model
 # --------------------------
-def serialize_model(best_model, tsvd, nlp_model=None, tokenizer=None):
-    print(f"=== Serializing ML components... ===")
+def quantize_model(best_model, tsvd, nlp_model=None, tokenizer=None, dtype=np.float16):
+    print(f"=== Quantizing ML components... ===")
     os.makedirs("./model_components", exist_ok=True)
 
-    # Save ML models
-    dump(best_model, './model_components/random_forest_model.joblib')
-    dump(tsvd, './model_components/tsvd.joblib')
+    # Quantize and save TSVD components
+    np.save("./model_components/tsvd_components.npy", tsvd.components_.astype(dtype))
 
-    # Save TSVD components
-    tsvd = load("./model_components/tsvd.joblib")
-    np.save("./model_components/tsvd_components.npy", tsvd.components_)
-
-    # Save RF structure
-    rf = load("./model_components/random_forest_model.joblib")
-
-    def extract_tree(tree):
-        return {
-            "children_left": tree.children_left.tolist(),
-            "children_right": tree.children_right.tolist(),
-            "feature": tree.feature.tolist(),
-            "threshold": tree.threshold.tolist(),
-            "value": tree.value.squeeze(1).tolist()
-        }
-
-    forest_json = [extract_tree(estimator.tree_) for estimator in rf.estimators_]
+    # Extract and quantize RF model
+    rf_data = []
+    for tree in best_model.estimators_:
+        t = tree.tree_
+        rf_data.append({
+            "children_left": t.children_left.astype(np.int32).tolist(),
+            "children_right": t.children_right.astype(np.int32).tolist(),
+            "feature": t.feature.astype(np.int32).tolist(),
+            "threshold": t.threshold.astype(dtype).tolist(),
+            "value": t.value.squeeze(1).astype(dtype).tolist()
+        })
 
     with open("./model_components/rf_forest.json", "w") as f:
-        json.dump(forest_json, f)
+        json.dump(rf_data, f)
 
-    # Save NLP components
+    # Quantize NLP model
     if nlp_model and tokenizer:
-        print("=== Serializing NLP components... ===")
-
+        print("=== Saving quantized NLP components... ===")
         weights = {
-            "embedding": nlp_model.embedding.weight.detach().cpu().tolist(),
-            "conv1_weight": nlp_model.conv1.weight.detach().cpu().tolist(),
-            "conv1_bias": nlp_model.conv1.bias.detach().cpu().tolist(),
-            "fc_weight": nlp_model.fc.weight.detach().cpu().tolist(),
-            "fc_bias": nlp_model.fc.bias.detach().cpu().tolist(),
+            "embedding": nlp_model.embedding.weight.detach().cpu().numpy().astype(dtype),
+            "conv1_weight": nlp_model.conv1.weight.detach().cpu().numpy().astype(dtype),
+            "conv1_bias": nlp_model.conv1.bias.detach().cpu().numpy().astype(dtype),
+            "fc_weight": nlp_model.fc.weight.detach().cpu().numpy().astype(dtype),
+            "fc_bias": nlp_model.fc.bias.detach().cpu().numpy().astype(dtype),
         }
-
-        np.savez("./model_components/cnn_weights.npz", **{k: np.array(v) for k, v in weights.items()})
+        np.savez("./model_components/cnn_weights.npz", **weights)
 
         with open("./model_components/cnn_tokenizer.json", "w") as f:
             json.dump(tokenizer.vocab, f)
 
-    print("\n*** Serialization Complete! ***\n")
+    print("\n*** Quantization Complete! ***\n")
     
 # --------------------------
 # Step 10: Compress ML+NLP Pipeline
@@ -378,10 +366,10 @@ def main():
         texts = [features_to_text(x, pred) for x, pred in zip(X_train_smote, y_train_smote)]
         labels = list(y_train_smote)
         nlp_model, tokenizer = train_nlp_model(texts, labels)
-        serialize_model(best_model, tsvd, nlp_model, tokenizer)
+        quantize_model(best_model, tsvd, nlp_model, tokenizer)
     else:
         print("*** Skipping NLP model training... ***")
-        serialize_model(best_model, tsvd)
+        quantize_model(best_model, tsvd)
     
     use_armv7 = input("Are you deploying on an ARMv7 board? (y/n): ").strip().lower()
     if use_armv7 == 'y':
