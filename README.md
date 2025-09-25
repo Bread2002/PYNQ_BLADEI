@@ -23,7 +23,7 @@ This repository contains an embedded deployment pipeline for detecting **malicio
 ## 📂 Repository Structure
 pynq-maldetect/<br>
 ├── trusthub_bitstreams/ ***# Sample `.bit` files (Benign, Malicious, Empty)***<br>
-├── model_components/ ***# Serialized ML+NLP model components***<br>
+├── model_components/ ***# Quantized ML+NLP model components***<br>
 ├── train_model.py ***# Model training and export for PYNQ***<br>
 ├── deploy_model.py ***# Model deployment for on-device inference***<br>
 ├── requirements.txt ***# Python dependencies***<br>
@@ -92,7 +92,7 @@ This project is divided into two parts:
 
 > **Requirements:**
 > - A supported FPGA board with PYNQ v3.1
-> - Serialized model components (via on-board training or exported archive)
+> - Quantized model components (via on-board training or exported archive)
 
 > ⚠️ **Note:**
 > If you are on an **ARMv8 (64-bit)** board (e.g., UltraScale+, Kria, RFSoC), you may have trained directly on the device. In this case, *skip to Step 3*.<br>
