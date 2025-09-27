@@ -16,21 +16,21 @@ from model_components.rf_predictor import predict_bitstream
 # --------------------------
 # Step 0: Suppress Warnings
 # --------------------------
-warnings.filterwarnings("ignore", category=FutureWarning)
-warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)  # Supress future warnings
+warnings.filterwarnings("ignore", category=UserWarning)  # Supress user warnings
 
 # --------------------------
 # Step 1: Collect Bitstream Files
 # --------------------------
 def collect_bitstreams(base_path="trusthub_bitstreams"):
-    categories = ["Empty", "Benign", "Malicious"]
+    categories = ["Empty", "Benign", "Malicious"]  # Initialize categories
     bitstream_files = []
-    for category in categories:
+    for category in categories:  # For each category, initialize the associated file path
         folder_path = os.path.join(base_path, category)
         for file in os.listdir(folder_path):
             if file.endswith(".bit"):
                 bitstream_files.append(os.path.join(folder_path, file))
-    return bitstream_files, categories
+    return bitstream_files
 
 # --------------------------
 # Step 2: Map Labels
@@ -72,21 +72,21 @@ def get_actual_class(folder, filename):
 # --------------------------
 def run_trials(bitstream_files, label_map, nlp_model=None, tokenizer=None, num_trials=5):
     total_time_ms = 0
-    for trial in range(num_trials):
-        bitstream_path = random.choice(bitstream_files)
-        filename = os.path.basename(bitstream_path)
-        folder = os.path.basename(os.path.dirname(bitstream_path))
+    for trial in range(num_trials):  # For each trial,
+        bitstream_path = random.choice(bitstream_files)  # Choose a random bitstream file
+        filename = os.path.basename(bitstream_path)  # Access the filename
+        folder = os.path.basename(os.path.dirname(bitstream_path))  # Access the folder name
 
         print(f"*** Trial {trial + 1}: Processing {filename}... ***")
-        actual_class = get_actual_class(folder, filename)
+        actual_class = get_actual_class(folder, filename)  # Determine the actual class
 
-        # Measure Load Time
+        # Measure the load time
         start_load = time.time()
         with open(bitstream_path, 'rb') as f:
             data = f.read()
         end_load = time.time()
 
-        # Feature Extraction
+        # Measure the time to extract features
         start_feat = time.time()
         size = len(data)
         if size == 0:
@@ -99,12 +99,12 @@ def run_trials(bitstream_files, label_map, nlp_model=None, tokenizer=None, num_t
             features = dense_vec
         end_feat = time.time()
 
-        # ML Prediction
+        # Measure the ML prediction time
         start_pred = time.time()
         ml_prediction = predict_bitstream(features)
         end_pred = time.time()
 
-        # NLP Cross-check
+        # If the NLP model and tokenizer exist, measure the cross-check time
         if nlp_model and tokenizer:
             start_conf = time.time()
             nlp_prediction = nlp_cross_check(nlp_model, tokenizer, features, ml_prediction)
@@ -112,14 +112,16 @@ def run_trials(bitstream_files, label_map, nlp_model=None, tokenizer=None, num_t
 
         print(f"Actual Class:    {actual_class}")
         print(f"ML Predicted:    {label_map.get(ml_prediction, 'Unknown')}")
-        
+
+        # If the NLP model and tokenizer exist, display the cross-check result
         if nlp_model and tokenizer:
             print(f"NLP Cross-Check: {'Match' if nlp_prediction == ml_prediction else 'Mismatch'}")
-
+        
         load_time_ms = (end_load - start_load) * 1000
         feat_time_ms = (end_feat - start_feat) * 1000
         pred_time_ms = (end_pred - start_pred) * 1000
-        
+
+        # If the NLP model and tokenizer exist, include the cross-check time in the total measurement 
         if nlp_model and tokenizer:
             conf_time_ms = (end_conf - start_conf) * 1000
             total_time_ms += load_time_ms + feat_time_ms + pred_time_ms + conf_time_ms
@@ -159,7 +161,7 @@ def print_system_info():
 # Main Execution
 # --------------------------
 def main():
-    bitstream_files, categories = collect_bitstreams()
+    bitstream_files = collect_bitstreams()
     label_map = get_label_map()
     
     deploy_nlp = input("Do you want to deploy the NLP model for cross-checking? (y/n): ").strip().lower()
