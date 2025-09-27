@@ -198,7 +198,7 @@ def features_to_text(feature_vector, model_prediction):
     text = f"Predicted Class: {model_prediction}. " + ", ".join(feature_descriptions)  # Finalize the description text
     return text
 
-# Converts raw text into numerical form so it can be used by a model
+# Converts raw text into numerical form so it can be used by the model
 class SimpleTokenizer:
     def __init__(self, vocab=None):
         if vocab is None:  # Initialize with default tokens if no vocab is provided
