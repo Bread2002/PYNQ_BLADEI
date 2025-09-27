@@ -107,7 +107,7 @@ def run_trials(bitstream_files, label_map, nlp_model=None, tokenizer=None, num_t
         # If the NLP model and tokenizer exist, measure the cross-check time
         if nlp_model and tokenizer:
             start_conf = time.time()
-            nlp_prediction = nlp_cross_check(nlp_model, tokenizer, features, ml_prediction)
+            nlp_prediction, explanation = nlp_cross_check(nlp_model, tokenizer, features, ml_prediction)
             end_conf = time.time()
 
         print(f"Actual Class:    {actual_class}")
@@ -116,6 +116,7 @@ def run_trials(bitstream_files, label_map, nlp_model=None, tokenizer=None, num_t
         # If the NLP model and tokenizer exist, display the cross-check result
         if nlp_model and tokenizer:
             print(f"NLP Cross-Check: {'Match' if nlp_prediction == ml_prediction else 'Mismatch'}")
+            print(f"NLP Explanation: {explanation}")
         
         load_time_ms = (end_load - start_load) * 1000
         feat_time_ms = (end_feat - start_feat) * 1000
