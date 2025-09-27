@@ -99,4 +99,4 @@ def nlp_cross_check(model, tokenizer, features, ml_prediction, max_length=50):
     # Run forward pass through the NumPy CNN
     logits = model.forward(token_ids)
     nlp_pred = int(np.argmax(logits, axis=1)[0])  # Choose the predicted class
-    return nlp_pred
+    return nlp_pred, text
