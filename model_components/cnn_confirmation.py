@@ -3,8 +3,8 @@ import json
 import numpy as np
 
 class NumPyCNN:
+    # Loads pretrained weights for embedding, convolution, and fully connected layers
     def __init__(self, weights, vocab_size, embed_dim=128, num_classes=5):
-        # Load pretrained weights for embedding, convolution, and fully connected layers
         self.embedding = weights["embedding"]
         self.conv1_weight = weights["conv1_weight"]
         self.conv1_bias = weights["conv1_bias"]
