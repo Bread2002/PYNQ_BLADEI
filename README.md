@@ -129,7 +129,6 @@ This project is divided into two parts:
 ---
 
 ## 📈 Sample Output
-Do you want to deploy the NLP model for cross-checking? (y/n): y<br>
 *** Trial 1: Processing empty2.bit... ***<br>
 Actual Class:	Empty (Class 0)<br>
 ML Prediction:	Empty (Class 0) [100.00% Confidence]<br>
