@@ -208,10 +208,10 @@ The authors were pleased to have this work accepted for presentation at the 37th
 ---
 
 ## 🛠️ Future Work
-- Provide human-readable justifications to interpret detection results
 - Integrate live USB bitstream capture
-- ~~Improve detection latency with quantized models~~
 - ~~Add NLP-based confirmation for ML predictions~~
+- ~~Provide human-readable justifications to interpret detection results~~
+- ~~Improve detection latency with quantized models~~
 - ~~Expand support for additional FPGA boards~~
 
 ## 🖊️ References
