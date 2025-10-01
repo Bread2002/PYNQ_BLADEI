@@ -128,63 +128,78 @@ This project is divided into two parts:
 
 ---
 
-## 📈 Example Output
-*** Trial 1: Processing empty7.bit... ***<br>
-Actual Class:    Empty (Class 0)<br>
-ML Predicted:    Empty (Class 0)<br>
-NLP Cross-Check: Match<br>
+## 📈 Sample Output
+Do you want to deploy the NLP model for cross-checking? (y/n): y
+*** Trial 1: Processing empty2.bit... ***
+Actual Class:	Empty (Class 0)
+ML Prediction:	Empty (Class 0) [100.00% Confidence]
+NLP Prediction:	Empty (Class 0) [88.50% Confidence]
+Cross-Check:	Match
+NLP Explanation: flat entropy, many unique bins (110/256), byte_0 absolute lock, moderately gapped, almost fully sparse, low-byte centroid, next max 0.01%, mean 0.39%, var 0.0039, skew 15.91, kurt 251.00, Q25 0.00%, Q50 0.00%, Q75 0.00%, strong low-byte dominance, mid/high ratio 0.59. byte_0 frequent (99.98%) | byte_32 frequent (0.01%) | byte_255 frequent (0.00%) | byte_1 frequent (0.00%) | byte_48 frequent (0.00%) | byte_0 >> byte_32 (ratio 7517.99, diff 99.96%) | byte_0 >> byte_255 (ratio 98641.73, diff 99.98%) | byte_0 >> byte_1 (ratio 101107.52, diff 99.98%) | byte_0 >> byte_48 (ratio 118947.91, diff 99.98%) | byte_32 > byte_255 (ratio 13.12, diff 0.01%) | byte_32 > byte_1 (ratio 13.45, diff 0.01%) | byte_32 > byte_48 (ratio 15.82, diff 0.01%) | byte_255 ~ byte_1 (ratio 1.02, diff 0.00%) | byte_255 ~ byte_48 (ratio 1.21, diff 0.00%) | byte_1 ~ byte_48 (ratio 1.18, diff 0.00%)
 
-=== Latency Summary ===<br>
-Load Bitstream:      7.34 ms<br>
-Feature Extraction:  1791.22 ms<br>
-Prediction:          5.83 ms<br>
-NLP Confirmation:    536.88 ms<br>
+====== Latency Summary: ======
+Load Bitstream:		1.91 ms
+Feature Extraction:	137.88 ms
+Prediction:		0.44 ms
+NLP Confirmation:	56.24 ms
 
-*** Trial 2: Processing RS232_T600.bit... ***<br>
-Actual Class:    Benign RS232 (Class 2)<br>
-ML Predicted:    Benign RS232 (Class 2)<br>
-NLP Cross-Check: Match<br>
+*** Trial 2: Processing AES_T1800_Trojan.bit... ***
+Actual Class:	Malicious AES (Class 3)
+ML Prediction:	Malicious AES (Class 3) [94.00% Confidence]
+NLP Prediction:	Malicious AES (Class 3) [79.33% Confidence]
+Cross-Check:	Match
+NLP Explanation: low entropy, full coverage (256/256), byte_0 overwhelming, moderately gapped, almost fully sparse, low-byte centroid, next max 0.30%, mean 0.39%, var 0.0035, skew 15.90, kurt 250.98, Q25 0.00%, Q50 0.01%, Q75 0.01%, moderate low-byte dominance, mid/high ratio 0.73. byte_0 frequent (95.27%) | byte_2 frequent (0.30%) | byte_64 frequent (0.27%) | byte_4 frequent (0.26%) | byte_1 frequent (0.23%) | byte_0 > byte_2 (ratio 321.26, diff 94.97%) | byte_0 > byte_64 (ratio 355.32, diff 95.00%) | byte_0 > byte_4 (ratio 366.15, diff 95.01%) | byte_0 > byte_1 (ratio 423.16, diff 95.04%) | byte_2 ~ byte_64 (ratio 1.11, diff 0.03%) | byte_2 ~ byte_4 (ratio 1.14, diff 0.04%) | byte_2 ~ byte_1 (ratio 1.32, diff 0.07%) | byte_64 ~ byte_4 (ratio 1.03, diff 0.01%) | byte_64 ~ byte_1 (ratio 1.19, diff 0.04%) | byte_4 ~ byte_1 (ratio 1.16, diff 0.04%)
 
-=== Latency Summary ===<br>
-Load Bitstream:      8.25 ms<br>
-Feature Extraction:  1913.59 ms<br>
-Prediction:          5.90 ms<br>
-NLP Confirmation:    538.15 ms<br>
+====== Latency Summary: ======
+Load Bitstream:		1.72 ms
+Feature Extraction:	130.49 ms
+Prediction:		0.41 ms
+NLP Confirmation:	54.30 ms
 
-*** Trial 3: Processing AES_T2000_Trojan.bit... ***<br>
-Actual Class:    Malicious AES (Class 3)<br>
-ML Predicted:    Malicious AES (Class 3)<br>
-NLP Cross-Check: Match<br>
+*** Trial 3: Processing RS232_T1400.bit... ***
+Actual Class:	Benign RS232 (Class 2)
+ML Prediction:	Benign RS232 (Class 2) [83.00% Confidence]
+NLP Prediction:	Benign RS232 (Class 2) [67.36% Confidence]
+Cross-Check:	Match
+NLP Explanation: flat entropy, many unique bins (123/256), byte_0 absolute lock, moderately gapped, almost fully sparse, low-byte centroid, next max 0.01%, mean 0.39%, var 0.0039, skew 15.91, kurt 251.00, Q25 0.00%, Q50 0.00%, Q75 0.00%, strong low-byte dominance, mid/high ratio 0.52. byte_0 frequent (99.97%) | byte_32 frequent (0.01%) | byte_1 frequent (0.00%) | byte_255 frequent (0.00%) | byte_48 frequent (0.00%) | byte_0 >> byte_32 (ratio 7602.68, diff 99.96%) | byte_0 >> byte_1 (ratio 80886.62, diff 99.97%) | byte_0 >> byte_255 (ratio 87919.62, diff 99.97%) | byte_0 >> byte_48 (ratio 118946.38, diff 99.97%) | byte_32 > byte_1 (ratio 10.64, diff 0.01%) | byte_32 > byte_255 (ratio 11.56, diff 0.01%) | byte_32 > byte_48 (ratio 15.65, diff 0.01%) | byte_1 ~ byte_255 (ratio 1.09, diff 0.00%) | byte_1 ~ byte_48 (ratio 1.47, diff 0.00%) | byte_255 ~ byte_48 (ratio 1.35, diff 0.00%)
 
-=== Latency Summary ===<br>
-Load Bitstream:      7.76 ms<br>
-Feature Extraction:  1840.20 ms<br>
-Prediction:          6.33 ms<br>
-NLP Confirmation:    536.09 ms<br>
+====== Latency Summary: ======
+Load Bitstream:		1.90 ms
+Feature Extraction:	125.73 ms
+Prediction:		0.39 ms
+NLP Confirmation:	54.12 ms
 
-*** Trial 4: Processing AES_T600.bit... ***<br>
-Actual Class:    Benign AES (Class 1)<br>
-ML Predicted:    Benign AES (Class 1)<br>
-NLP Cross-Check: Match<br>
+*** Trial 4: Processing empty7.bit... ***
+Actual Class:	Empty (Class 0)
+ML Prediction:	Empty (Class 0) [99.00% Confidence]
+NLP Prediction:	Empty (Class 0) [88.50% Confidence]
+Cross-Check:	Match
+NLP Explanation: flat entropy, many unique bins (109/256), byte_0 absolute lock, moderately gapped, almost fully sparse, low-byte centroid, next max 0.01%, mean 0.39%, var 0.0039, skew 15.91, kurt 251.00, Q25 0.00%, Q50 0.00%, Q75 0.00%, strong low-byte dominance, mid/high ratio 0.60. byte_0 frequent (99.98%) | byte_32 frequent (0.01%) | byte_255 frequent (0.00%) | byte_1 frequent (0.00%) | byte_48 frequent (0.00%) | byte_0 >> byte_32 (ratio 7517.99, diff 99.96%) | byte_0 >> byte_255 (ratio 98641.73, diff 99.98%) | byte_0 >> byte_1 (ratio 101107.52, diff 99.98%) | byte_0 >> byte_48 (ratio 118947.91, diff 99.98%) | byte_32 > byte_255 (ratio 13.12, diff 0.01%) | byte_32 > byte_1 (ratio 13.45, diff 0.01%) | byte_32 > byte_48 (ratio 15.82, diff 0.01%) | byte_255 ~ byte_1 (ratio 1.02, diff 0.00%) | byte_255 ~ byte_48 (ratio 1.21, diff 0.00%) | byte_1 ~ byte_48 (ratio 1.18, diff 0.00%)
 
-=== Latency Summary ===<br>
-Load Bitstream:      7.25 ms<br>
-Feature Extraction:  1832.26 ms<br>
-Prediction:          6.30 ms<br>
-NLP Confirmation:    536.31 ms<br>
+====== Latency Summary: ======
+Load Bitstream:		1.78 ms
+Feature Extraction:	125.87 ms
+Prediction:		0.55 ms
+NLP Confirmation:	54.81 ms
 
-*** Trial 5: Processing AES_T2100_Trojan.bit... ***<br>
-Actual Class:    Malicious AES (Class 3)<br>
-ML Predicted:    Malicious AES (Class 3)<br>
-NLP Cross-Check: Match<br>
+*** Trial 5: Processing AES_T500.bit... ***
+Actual Class:	Benign AES (Class 1)
+ML Prediction:	Benign AES (Class 1) [94.00% Confidence]
+NLP Prediction:	Benign AES (Class 1) [74.01% Confidence]
+Cross-Check:	Match
+NLP Explanation: low entropy, full coverage (256/256), byte_0 overwhelming, moderately gapped, almost fully sparse, low-byte centroid, next max 0.30%, mean 0.39%, var 0.0035, skew 15.90, kurt 250.98, Q25 0.00%, Q50 0.01%, Q75 0.01%, moderate low-byte dominance, mid/high ratio 0.73. byte_0 frequent (95.23%) | byte_2 frequent (0.30%) | byte_64 frequent (0.27%) | byte_4 frequent (0.26%) | byte_32 frequent (0.24%) | byte_0 > byte_2 (ratio 317.28, diff 94.93%) | byte_0 > byte_64 (ratio 350.92, diff 94.96%) | byte_0 > byte_4 (ratio 366.61, diff 94.97%) | byte_0 > byte_32 (ratio 394.71, diff 94.99%) | byte_2 ~ byte_64 (ratio 1.11, diff 0.03%) | byte_2 ~ byte_4 (ratio 1.16, diff 0.04%) | byte_2 ~ byte_32 (ratio 1.24, diff 0.06%) | byte_64 ~ byte_4 (ratio 1.04, diff 0.01%) | byte_64 ~ byte_32 (ratio 1.12, diff 0.03%) | byte_4 ~ byte_32 (ratio 1.08, diff 0.02%)
 
-=== Latency Summary ===<br>
-Load Bitstream:      7.45 ms<br>
-Feature Extraction:  1821.59 ms<br>
-Prediction:          6.22 ms<br>
-NLP Confirmation:    536.80 ms<br>
+====== Latency Summary: ======
+Load Bitstream:		2.42 ms
+Feature Extraction:	128.31 ms
+Prediction:		0.40 ms
+NLP Confirmation:	54.36 ms
 
-Average Latency: 2.39 s<br>
+======= Final Report: =======
+Average Latency: 0.19 s
+ML Predictions: 5 / 5 (100.00%)
+NLP Predictions: 5 / 5 (100.00%)
+Cross-Checks: 5 / 5 (100.00%)
 
 ---
 

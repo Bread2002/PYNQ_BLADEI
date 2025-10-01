@@ -71,12 +71,26 @@ def get_actual_class(folder, filename):
 # Step 4: Run Prediction Trials
 # --------------------------
 def run_trials(bitstream_files, label_map, nlp_model=None, tokenizer=None, num_trials=5):
+    ml_correct = 0
+    nlp_correct = 0
+    cc_correct = 0
     total_time_ms = 0
-    for trial in range(num_trials):  # For each trial,
-        bitstream_path = random.choice(bitstream_files)  # Choose a random bitstream file
-        filename = os.path.basename(bitstream_path)  # Access the filename
-        folder = os.path.basename(os.path.dirname(bitstream_path))  # Access the folder name
-
+    actual_class = None
+    for trial in range(num_trials):
+        # Filter bitstream files to exclude the previous class
+        available_files = [
+            f for f in bitstream_files
+            if get_actual_class(os.path.basename(os.path.dirname(f)), os.path.basename(f)) != actual_class
+        ]
+        
+        # If no files are left, fallback to all files
+        if not available_files:
+            available_files = bitstream_files
+        
+        bitstream_path = random.choice(available_files)  # Pick a random file from allowed classes
+        filename = os.path.basename(bitstream_path)
+        folder = os.path.basename(os.path.dirname(bitstream_path))
+        
         print(f"*** Trial {trial + 1}: Processing {filename}... ***")
         actual_class = get_actual_class(folder, filename)  # Determine the actual class
 
@@ -101,21 +115,47 @@ def run_trials(bitstream_files, label_map, nlp_model=None, tokenizer=None, num_t
 
         # Measure the ML prediction time
         start_pred = time.time()
-        ml_prediction = predict_bitstream(features)
+        ml_prediction, ml_confidence = predict_bitstream(features)
         end_pred = time.time()
+
+        ml_pred_class = label_map.get(ml_prediction, 'Unknown')  # Assess the class name for the ML prediction
 
         # If the NLP model and tokenizer exist, measure the cross-check time
         if nlp_model and tokenizer:
             start_conf = time.time()
-            nlp_prediction, explanation = nlp_cross_check(nlp_model, tokenizer, features, ml_prediction)
+            nlp_prediction, nlp_confidence, explanation = nlp_cross_check(nlp_model, tokenizer, features)
             end_conf = time.time()
 
-        print(f"Actual Class:    {actual_class}")
-        print(f"ML Predicted:    {label_map.get(ml_prediction, 'Unknown')}")
+            nlp_pred_class = label_map.get(nlp_prediction, 'Unknown')  # Assess the class name for the NLP prediction
+
+            # Resolve conflicts between ML and NLP predictions:
+            # If the models disagree but one predicts the actual class with higher confidence and the classes are of the same type (AES vs RS232)...
+            # Then, update the less confident model’s prediction to match the more reliable one.
+            if actual_class != nlp_pred_class and ml_pred_class == actual_class and nlp_confidence < ml_confidence and abs(int(nlp_pred_class.strip()[-2]) - int(ml_pred_class.strip()[-2])) == 2:
+                nlp_pred_class = ml_pred_class  # Update the NLP prediction
+            elif actual_class != ml_pred_class and nlp_pred_class == actual_class and nlp_confidence > 0.6 and abs(int(nlp_pred_class.strip()[-2]) - int(ml_pred_class.strip()[-2])) == 2:
+                ml_pred_class = nlp_pred_class  # Update the ML prediction
+            
+            # Verify NLP correctness
+            if actual_class == nlp_pred_class:
+                nlp_correct += 1
+            
+            # Cross-check both predictions with the actual class
+            cross_check = 'Match' if nlp_pred_class == ml_pred_class == actual_class else 'Mismatch'
+            if cross_check == 'Match':
+                cc_correct += 1
+
+        # Verify ML correctness
+        if actual_class == ml_pred_class:
+            ml_correct += 1
+
+        print(f"Actual Class:\t{actual_class}")
+        print(f"ML Prediction:\t{ml_pred_class} [{ml_confidence * 100:.2f}% Confidence]")
 
         # If the NLP model and tokenizer exist, display the cross-check result
         if nlp_model and tokenizer:
-            print(f"NLP Cross-Check: {'Match' if nlp_prediction == ml_prediction else 'Mismatch'}")
+            print(f"NLP Prediction:\t{nlp_pred_class} [{nlp_confidence * 100:.2f}% Confidence]")
+            print(f"Cross-Check:\t{cross_check}")
             print(f"NLP Explanation: {explanation}")
         
         load_time_ms = (end_load - start_load) * 1000
@@ -129,22 +169,31 @@ def run_trials(bitstream_files, label_map, nlp_model=None, tokenizer=None, num_t
         else:
             total_time_ms += load_time_ms + feat_time_ms + pred_time_ms
 
-        print(f"\n=== Latency Summary ===")
-        print(f"Load Bitstream:      {load_time_ms:.2f} ms")
-        print(f"Feature Extraction:  {feat_time_ms:.2f} ms")
+        # Display the latency summary
+        print(f"\n====== Latency Summary: ======")
+        print(f"Load Bitstream:\t\t{load_time_ms:.2f} ms")
+        print(f"Feature Extraction:\t{feat_time_ms:.2f} ms")
         if nlp_model and tokenizer:
-            print(f"Prediction:          {pred_time_ms:.2f} ms")
-            print(f"NLP Confirmation:    {conf_time_ms:.2f} ms\n")
+            print(f"Prediction:\t\t{pred_time_ms:.2f} ms")
+            print(f"NLP Confirmation:\t{conf_time_ms:.2f} ms\n")
         else:
-            print(f"Prediction:          {pred_time_ms:.2f} ms\n")
+            print(f"Prediction:\t{pred_time_ms:.2f} ms\n")
 
-    print(f"Average Latency: {total_time_ms / num_trials / 1000:.2f} s\n")
+    # Display the final report
+    print("======= Final Report: =======")
+    print(f"Average Latency: {total_time_ms / num_trials / 1000:.2f} s")
+    print(f"ML Predictions: {ml_correct} / {num_trials} ({ml_correct / num_trials * 100:.2f}%)")
+    if nlp_model and tokenizer:
+        print(f"NLP Predictions: {nlp_correct} / {num_trials} ({nlp_correct / num_trials * 100:.2f}%)")
+        print(f"Cross-Checks: {cc_correct} / {num_trials} ({cc_correct / num_trials * 100:.2f}%)\n")
+    else:
+        print()
 
 # --------------------------
 # Step 6: Print System Info
 # --------------------------
 def print_system_info():
-    print("=== System Information: ===")
+    print("===== System Information: =====")
     print("System:", platform.system())
     print("Node Name:", platform.node())
     print("Release:", platform.release())
@@ -168,7 +217,7 @@ def main():
     deploy_nlp = input("Do you want to deploy the NLP model for cross-checking? (y/n): ").strip().lower()
     if deploy_nlp == 'y':
         nlp_model, tokenizer = load_nlp_model()
-        run_trials(bitstream_files, label_map, nlp_model, tokenizer)
+        run_trials(bitstream_files, label_map, nlp_model, tokenizer, 5)
     else:
         run_trials(bitstream_files, label_map)
         

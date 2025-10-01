@@ -25,13 +25,15 @@ def predict_tree(tree, x):
             node = tree["children_right"][node]
     return np.argmax(tree["value"][node])  # Pick the class with the highest count
 
-# Aggregates predictions from all trees by majority vote
-def predict_forest(forest, x):
-    votes = [predict_tree(tree, x) for tree in forest]
-    return max(set(votes), key=votes.count)
-
 # Reduce feature dimensions using TSVD, then predict with the model
 def predict_bitstream(features):
     reduced = transform_tsvd(features, tsvd_components)
-    pred = predict_forest(forest, reduced)
-    return pred
+    
+    # Get individual tree votes
+    votes = [predict_tree(tree, reduced) for tree in forest]
+    pred = max(set(votes), key=votes.count)
+    
+    # Compute ML confidence as fraction of trees voting for the winning class
+    ml_confidence = votes.count(pred) / len(votes)
+    
+    return pred, ml_confidence
