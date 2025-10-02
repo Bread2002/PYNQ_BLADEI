@@ -45,7 +45,7 @@ This project is divided into two parts:
 
 > **Requirements:**
 > - Python 3.8+
-> - Python Packages: `scikit-learn`, `numpy`, `scipy`, `pandas`, `joblib`, `imblearn`, `pytorch`
+> - Python Packages: `scikit-learn`, `numpy`, `scipy`, `imblearn`, `pytorch`
 
 > ⚠️ **Note:**
 > On **ARMv7 (32-bit)** boards (e.g., PYNQ-Z1/Z2), training is not supported. These boards lack prebuilt wheels and have insufficient resources for model training. Use a general-purpose CPU (e.g., laptop, workstation, or server) instead. If you take this route, *skip Steps 2 and 4* and ***comment out the "PYNQ-specific Packages" from `requirements.txt`***.<br>
