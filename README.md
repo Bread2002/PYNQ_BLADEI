@@ -187,6 +187,8 @@ The authors were pleased to have this work accepted for presentation at the 37th
 - ~~Improve detection latency with quantized models~~
 - ~~Expand support for additional FPGA boards~~
 
+---
+
 ## 🖊️ References
 > - AMD. (2024). PYNQ: Python Productivity for Zynq. Retrieved from https://www.pynq.io
 > - Benz, F., Seffrin, A., & Huss, S. A. (2012). BIL: A Tool-Chain for Bitstream Reverse-Engineering. Proceedings of the IEEE International Conference on Field Programmable Logic and Applications (FPL), 735–738. IEEE.
