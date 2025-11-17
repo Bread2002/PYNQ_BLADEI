@@ -1,7 +1,7 @@
 # Copyright (c) 2025, Rye Stahle-Smith; All rights reserved.
 # PYNQ BLADEI: Bitstream-Level Abnormality Detection for Embedded Inference
-# September 21st, 2025
-# Description: This script runs real-time classification of FPGA bitstreams on PYNQ-supported boards using the serialized ML and NLP components.
+# November 17th, 2025
+# Description: This script runs real-time classification of FPGA bitstreams on PYNQ-supported boards using the serialized ML components.
 import os
 import random
 import platform
