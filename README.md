@@ -5,7 +5,7 @@
 
 ## 📌 Project Overview
 
-This repository contains an embedded deployment pipeline for detecting **malicious FPGA bitstreams** using a trained machine learning (ML) model. Bitstreams are configuration files that can be weaponized to introduce hardware Trojans, posing serious risks in shared or cloud-hosted reconfigurable systems. This project leverages a lightweight, byte-level classification approach and enables **on-device malware detection** for the **PYNQ-supported FPGA boards**, without requiring reverse engineering techniques or access to original source code or netlists. Benchmark designs, including AES-128 and RS232 variants, were obtained from Trust-Hub, then synthesized, implemented, and categorized as benign, malicious, or empty `.bit` files.
+This repository contains an embedded deployment pipeline for detecting **malicious FPGA bitstreams** using a trained machine learning (ML) model. Bitstreams are configuration files that can be weaponized to introduce hardware Trojans, posing serious risks in shared or cloud-hosted reconfigurable systems. This project leverages a lightweight, byte-level classification approach and enables **on-device malware detection** for **PYNQ-supported FPGA boards**, without requiring reverse engineering techniques or access to original source code or netlists. Benchmark designs, including AES-128 and RS232 variants, were obtained from Trust-Hub, then synthesized, implemented, and categorized as benign, malicious, or empty `.bit` files
 
 ---
 
@@ -14,7 +14,7 @@ This repository contains an embedded deployment pipeline for detecting **malicio
 - 🔍 **Byte-frequency analysis** of binary `.bit` files
 - 📉 Dimensionality reduction and class balancing via **TSVD** and **SMOTE**
 - 📊 Real-time inference using trained **scikit-learn classifiers** (e.g., Random Forest)
-- ⚡ Deployment-ready for **ARMv7 (e.g., PYNQ-Z1/Z2, Zynq-7000 SoC)** and **ARMv8 (e.g., Zynq UltraScale+ MPSoC, RFSoC, Kria) boards**.
+- ⚡ Deployment-ready for **ARMv7 (e.g., PYNQ-Z1/Z2, Zynq-7000 SoC)** and **ARMv8 (e.g., Zynq UltraScale+ MPSoC, RFSoC, Kria) boards**
 - 🧪 Verified with state-of-the-art (SOTA) bitstreams derived from **Trust-Hub** benchmarks
 
 ---
@@ -22,11 +22,11 @@ This repository contains an embedded deployment pipeline for detecting **malicio
 ## 📂 Repository Structure
 pynq-maldetect/<br>
 ├── trusthub_bitstreams/ ***# Sample `.bit` files (Benign, Malicious, Empty)***<br>
-├── model_components/ ***# Serialized sklearn model components***<br>
-├── VirtualEnv/ ***# Virtual environment***<br>
-├── train_model.ipynb ***# Model training and export for PYNQ***<br>
-├── deploy_model.ipynb ***# Model deployment for on-device inference***<br>
+├── model_components/ ***# Quantized ML model components***<br>
+├── train_model.py ***# Model training and export for PYNQ***<br>
+├── deploy_model.py ***# Model deployment for on-device inference***<br>
 ├── requirements.txt ***# Python dependencies***<br>
+├── LICENSE.md<br>
 └── README.md<br>
 
 ---
@@ -40,14 +40,14 @@ This project is divided into two parts:
 
 ---
 
-### 🧠 `train_model.ipynb` — Model Training and Export
+### 🧠 `train_model.py` — Model Training and Export
 
 > **Requirements:**
 > - Python 3.8+
-> - Python Packages: `scikit-learn`, `numpy`, `scipy`, `pandas`, `joblib`, `imblearn`  
+> - Python Packages: `scikit-learn`, `numpy`, `scipy`, `imblearn`
 
 > ⚠️ **Note:**
-> On **ARMv7 (32-bit)** boards (e.g., PYNQ-Z1/Z2), training is not supported. These boards lack prebuilt scikit-learn wheels and have insufficient resources for model training. Use a general-purpose CPU (e.g., laptop, workstation, or server) instead.
+> On **ARMv7 (32-bit)** boards (e.g., PYNQ-Z1/Z2), training is not supported. These boards lack prebuilt wheels and have insufficient resources for model training. Use a general-purpose CPU (e.g., laptop, workstation, or server) instead. If you take this route, *skip Steps 2 and 4* and ***comment out the "PYNQ-specific Packages" from `requirements.txt`***.<br>
 > On **ARMv8 (64-bit)** boards (e.g., Zynq UltraScale+, Kria, RFSoC), you may train directly on the board if sufficient resources are available.
 
 1. Clone the Repository:
@@ -55,15 +55,25 @@ This project is divided into two parts:
    git clone https://github.com/Bread2002/PYNQ_BLADEI.git
    cd PYNQ_BLADEI
    ```
+
+2. Source the PYNQ Virtual Environment:
+   ```bash
+   source /usr/local/share/pynq-venv/bin/activate
+   ```
    
-2. Install Dependencies:
+3. Install Dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Run the Training Script:
+4. Deactivate the PYNQ Virtual Environment:
    ```bash
-    jupyter notebook train_model.ipynb
+   deactivate
+   ```
+
+5. Run the Training Script:
+   ```bash
+   python train_model.py
    ```
 
 #### ***Features:***
@@ -76,18 +86,18 @@ This project is divided into two parts:
 
 ---
 
-### ⚙️ `deploy_model.ipynb` — On-Device Inference
+### ⚙️ `deploy_model.py` — On-Device Inference
 
 > **Requirements:**
 > - A supported FPGA board with PYNQ v3.1
-> - Serialized model components (via on-board training or exported archive)
+> - Quantized model components (via on-board training or exported archive)
 
 > ⚠️ **Note:**
-> If you are on an **ARMv8 (64-bit)** board (e.g., UltraScale+, Kria, RFSoC), you may have trained directly on the device. In this case, *skip to Step 3*.
+> If you are on an **ARMv8 (64-bit)** board (e.g., UltraScale+, Kria, RFSoC), you may have trained directly on the device. In this case, *skip to Step 3*.<br>
 > If you are on an **ARMv7 (32-bit)** board (e.g., PYNQ-Z1/Z2), *begin at Step 1*. Since you cannot train on the board, you must import the archive.
 
 
-1. Import the Archive to your PYNQ board via Jupyter Notebook
+1. Import the Archive to your PYNQ board via Jupyter Notebook or SSH/SFTP
 
 2. Decompress the Archive:
     ```bash
@@ -99,14 +109,14 @@ This project is divided into two parts:
 
 3. Run the Deployment Script:
    ```bash
-   jupyter notebook deploy_model.ipynb
+   python deploy_model.py
    ```
 
 #### Features:
 - Loads `.bit` files from local storage  
 - Extracts sparse and structural features  
 - Applies TSVD transformation  
-- Predicts class (`Benign`, `Malicious`, or `Empty`) using the trained model  
+- Predicts class (`Benign`, `Malicious`, or `Empty`) using the trained model
 - Displays prediction result with latency breakdown:
   - Load time  
   - Feature extraction time  
@@ -166,14 +176,15 @@ Average Latency: 3.40 s<br>
 ---
 
 ## 🤝 Acknowledgments
-This work was supported by the McNair Junior Fellowship and Office of Undergraduate Research at the University of South Carolina. The authors used OpenAl's ChatGPT to assist with language and grammar correction. While this project utilizes benchmark designs from Trust-Hub, a resource sponsored by the National Science Foundation (NSF), all technical content and analysis were independently developed by the authors.
-This research also made use of the PYNQ platform, provided by AMD and Xilinx, whose tools and hardware enabled the synthesis and deployment stages of this study.
+The authors were pleased to have this work accepted for presentation at the 37th annual ACM/ IEEE Supercomputing Conference. This work was supported by the McNair Junior Fellowship and Office of Undergraduate Research at the University of South Carolina. OpenAl's ChatGPT assisted with language and grammar correction. While this project utilizes benchmark designs from Trust-Hub, a resource sponsored by the National Science Foundation (NSF), all technical content and analysis were independently developed by the authors. This research also utilized PYNQ, provided by AMD and Xilinx, whose tools and hardware facilitated the synthesis and deployment stages of this study. Access to the FPGA devices was made possible through the AMD University Program.
 
 ---
 
 ## 🛠️ Future Work
-- Improve detection latency with quantized ML models
 - Integrate live USB bitstream capture
+- Add NLP-based confirmation for ML predictions
+- Provide human-readable justifications to interpret detection results
+- ~~Improve detection latency with quantized models~~
 - ~~Expand support for additional FPGA boards~~
 
 ## 🖊️ References
