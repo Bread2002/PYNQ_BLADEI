@@ -1,7 +1,7 @@
 # Copyright (c) 2025, Rye Stahle-Smith; All rights reserved.
 # PYNQ BLADEI: Bitstream-Level Abnormality Detection for Embedded Inference
-# September 21st, 2025
-# Description: This script runs real-time classification of FPGA bitstreams on PYNQ-supported boards using the serialized ML and NLP components.
+# November 17th, 2025
+# Description: This script runs real-time classification of FPGA bitstreams on PYNQ-supported boards using the serialized ML components.
 import os
 import random
 import platform
@@ -10,7 +10,6 @@ import time
 import warnings
 import numpy as np
 from collections import Counter
-from model_components.cnn_confirmation import load_nlp_model, nlp_cross_check
 from model_components.rf_predictor import predict_bitstream
 
 # --------------------------
@@ -70,7 +69,7 @@ def get_actual_class(folder, filename):
 # --------------------------
 # Step 4: Run Prediction Trials
 # --------------------------
-def run_trials(bitstream_files, label_map, nlp_model=None, tokenizer=None, num_trials=5):
+def run_trials(bitstream_files, label_map, num_trials=5):
     ml_correct = 0
     nlp_correct = 0
     cc_correct = 0
@@ -118,76 +117,21 @@ def run_trials(bitstream_files, label_map, nlp_model=None, tokenizer=None, num_t
         ml_prediction, ml_confidence = predict_bitstream(features)
         end_pred = time.time()
 
-        ml_pred_class = label_map.get(ml_prediction, 'Unknown')  # Assess the class name for the ML prediction
-
-        # If the NLP model and tokenizer exist, measure the cross-check time
-        if nlp_model and tokenizer:
-            start_conf = time.time()
-            nlp_prediction, nlp_confidence, explanation = nlp_cross_check(nlp_model, tokenizer, features)
-            end_conf = time.time()
-
-            nlp_pred_class = label_map.get(nlp_prediction, 'Unknown')  # Assess the class name for the NLP prediction
-
-            # Resolve conflicts between ML and NLP predictions:
-            # If the models disagree but one predicts the actual class with higher confidence and the classes are of the same type (AES vs RS232)...
-            # Then, update the less confident model’s prediction to match the more reliable one.
-            if actual_class != nlp_pred_class and ml_pred_class == actual_class and nlp_confidence < ml_confidence and abs(int(nlp_pred_class.strip()[-2]) - int(ml_pred_class.strip()[-2])) == 2:
-                nlp_pred_class = ml_pred_class  # Update the NLP prediction
-            elif actual_class != ml_pred_class and nlp_pred_class == actual_class and nlp_confidence > 0.6 and abs(int(nlp_pred_class.strip()[-2]) - int(ml_pred_class.strip()[-2])) == 2:
-                ml_pred_class = nlp_pred_class  # Update the ML prediction
-            
-            # Verify NLP correctness
-            if actual_class == nlp_pred_class:
-                nlp_correct += 1
-            
-            # Cross-check both predictions with the actual class
-            cross_check = 'Match' if nlp_pred_class == ml_pred_class == actual_class else 'Mismatch'
-            if cross_check == 'Match':
-                cc_correct += 1
-
-        # Verify ML correctness
-        if actual_class == ml_pred_class:
-            ml_correct += 1
-
-        print(f"Actual Class:\t{actual_class}")
-        print(f"ML Prediction:\t{ml_pred_class} [{ml_confidence * 100:.2f}% Confidence]")
-
-        # If the NLP model and tokenizer exist, display the cross-check result
-        if nlp_model and tokenizer:
-            print(f"NLP Prediction:\t{nlp_pred_class} [{nlp_confidence * 100:.2f}% Confidence]")
-            print(f"Cross-Check:\t{cross_check}")
-            print(f"NLP Explanation: {explanation}")
-        
+       # Compute each time in ms
         load_time_ms = (end_load - start_load) * 1000
         feat_time_ms = (end_feat - start_feat) * 1000
         pred_time_ms = (end_pred - start_pred) * 1000
-
-        # If the NLP model and tokenizer exist, include the cross-check time in the total measurement 
-        if nlp_model and tokenizer:
-            conf_time_ms = (end_conf - start_conf) * 1000
-            total_time_ms += load_time_ms + feat_time_ms + pred_time_ms + conf_time_ms
-        else:
-            total_time_ms += load_time_ms + feat_time_ms + pred_time_ms
-
+     
         # Display the latency summary
         print(f"\n====== Latency Summary: ======")
         print(f"Load Bitstream:\t\t{load_time_ms:.2f} ms")
         print(f"Feature Extraction:\t{feat_time_ms:.2f} ms")
-        if nlp_model and tokenizer:
-            print(f"Prediction:\t\t{pred_time_ms:.2f} ms")
-            print(f"NLP Confirmation:\t{conf_time_ms:.2f} ms\n")
-        else:
-            print(f"Prediction:\t{pred_time_ms:.2f} ms\n")
+        print(f"Prediction:\t{pred_time_ms:.2f} ms\n")
 
     # Display the final report
     print("======= Final Report: =======")
     print(f"Average Latency: {total_time_ms / num_trials / 1000:.2f} s")
-    print(f"ML Predictions: {ml_correct} / {num_trials} ({ml_correct / num_trials * 100:.2f}%)")
-    if nlp_model and tokenizer:
-        print(f"NLP Predictions: {nlp_correct} / {num_trials} ({nlp_correct / num_trials * 100:.2f}%)")
-        print(f"Cross-Checks: {cc_correct} / {num_trials} ({cc_correct / num_trials * 100:.2f}%)\n")
-    else:
-        print()
+    print(f"ML Predictions: {ml_correct} / {num_trials} ({ml_correct / num_trials * 100:.2f}%)\n")
 
 # --------------------------
 # Step 6: Print System Info
@@ -214,12 +158,7 @@ def main():
     bitstream_files = collect_bitstreams()
     label_map = get_label_map()
     
-    deploy_nlp = input("Do you want to deploy the NLP model for cross-checking? (y/n): ").strip().lower()
-    if deploy_nlp == 'y':
-        nlp_model, tokenizer = load_nlp_model()
-        run_trials(bitstream_files, label_map, nlp_model, tokenizer, 5)
-    else:
-        run_trials(bitstream_files, label_map)
+    run_trials(bitstream_files, label_map)
         
     print_system_info()
 
