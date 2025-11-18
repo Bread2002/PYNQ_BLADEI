@@ -170,8 +170,8 @@ Load Bitstream:      187.22 ms<br>
 Feature Extraction:  3235.79 ms<br>
 Prediction:          16.80 ms<br>
 
-
 Average Latency: 3.40 s<br>
+ML Predictions: 5 / 5 (100%)<br>
 
 ---
 
