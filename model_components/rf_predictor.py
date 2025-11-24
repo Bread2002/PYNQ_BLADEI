@@ -33,7 +33,4 @@ def predict_bitstream(features):
     votes = [predict_tree(tree, reduced) for tree in forest]
     pred = max(set(votes), key=votes.count)
     
-    # Compute ML confidence as fraction of trees voting for the winning class
-    ml_confidence = votes.count(pred) / len(votes)
-    
-    return pred, ml_confidence
+    return pred
