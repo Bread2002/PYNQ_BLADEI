@@ -71,8 +71,7 @@ def get_actual_class(folder, filename):
 # --------------------------
 def run_trials(bitstream_files, label_map, num_trials=5):
     ml_correct = 0
-    nlp_correct = 0
-    cc_correct = 0
+    
     total_time_ms = 0
     actual_class = None
     for trial in range(num_trials):
@@ -114,7 +113,7 @@ def run_trials(bitstream_files, label_map, num_trials=5):
 
         # Measure the ML prediction time
         start_pred = time.time()
-        ml_prediction, ml_confidence = predict_bitstream(features)
+        ml_prediction = predict_bitstream(features)
         end_pred = time.time()
 
        # Compute each time in ms
