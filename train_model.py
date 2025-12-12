@@ -222,7 +222,7 @@ def quantize_model(best_model, tsvd, dtype=np.float16):
     with open("./model_components/rf_forest.json", "w") as f:
         json.dump(rf_data, f)
 
-    print("\n*** Quantization Complete! ***\n")
+    print("*** Quantization Complete! ***\n")
     
 # --------------------------
 # Step 10: Compress ML Pipeline
@@ -233,7 +233,7 @@ def compress_to_tar_gz(output_file, targets):  # Helper function for compressing
             tar.add(target, arcname=os.path.basename(target))
 
 def export_pipeline(best_model_name):
-    print(f"=== Compressing pipeline for PYNQ Deployment... ===\n")
+    print(f"=== Compressing pipeline for PYNQ Deployment... ===")
     targets = ["trusthub_bitstreams", "model_components", "deploy_model.py"]
     output_file = "PYNQ_BLADEI.tar.gz"
     compress_to_tar_gz(output_file, targets)
