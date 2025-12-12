@@ -198,7 +198,7 @@ def evaluate_best_model(classifiers, cv_results, X_train_smote, y_train_smote, X
 # --------------------------
 # Step 9: Quantize ML Model
 # --------------------------
-def quantize_model(best_model, tsvd, nlp_model=None, tokenizer=None, dtype=np.float16):
+def quantize_model(best_model, tsvd, dtype=np.float16):
     print(f"=== Quantizing ML components... ===")
     
     # Create the model_components directory, if it doesn't exist
@@ -222,7 +222,7 @@ def quantize_model(best_model, tsvd, nlp_model=None, tokenizer=None, dtype=np.fl
     with open("./model_components/rf_forest.json", "w") as f:
         json.dump(rf_data, f)
 
-    print("\n*** Quantization Complete! ***\n")
+    print("*** Quantization Complete! ***\n")
     
 # --------------------------
 # Step 10: Compress ML Pipeline
@@ -233,8 +233,8 @@ def compress_to_tar_gz(output_file, targets):  # Helper function for compressing
             tar.add(target, arcname=os.path.basename(target))
 
 def export_pipeline(best_model_name):
-    print(f"=== Compressing pipeline for PYNQ Deployment... ===\n")
-    targets = ["trusthub_bitstreams", "model_components", "VirtualEnv", "deploy_model.py"]
+    print(f"=== Compressing pipeline for PYNQ Deployment... ===")
+    targets = ["trusthub_bitstreams", "model_components", "deploy_model.py"]
     output_file = "PYNQ_BLADEI.tar.gz"
     compress_to_tar_gz(output_file, targets)
     print(f"*** Compression complete! Archive saved as '{output_file}'... ***")
