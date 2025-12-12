@@ -125,53 +125,51 @@ This project is divided into two parts:
 ---
 
 ## 📈 Example Output
-*** Trial 1: Processing RS232_T800_Trojan.bit... ***<br>
-Actual Class:    Malicious RS232 (Class 4)<br>
-Predicted Class: Malicious RS232 (Class 4)<br>
+======= Cloud Submission Pipeline (Simulated): =======<br>
+INFO: User submission in-process -> AES_T2100.v<br>
+INFO: Establishing secure session with cloud FPGA service...<br>
+INFO: HDL source identified: AES_T2100.v<br>
 
-=== Latency Summary ===<br>
-Load Bitstream:      185.46 ms<br>
-Feature Extraction:  3173.30 ms<br>
-Prediction:          33.11 ms<br>
+INFO: Uploading HDL package to remote workspace...<br>
+Progress: |████████████████████| 100% (30/30)<br>
+INFO: Upload complete.<br>
 
-*** Trial 2: Processing empty19.bit... ***<br>
-Actual Class:    Empty (Class 0)<br>
-Predicted Class: Empty (Class 0)<br>
+INFO: Job queued for synthesis/implementation...<br>
+Progress: |████████████████████| 100% (12/12)<br>
+INFO: Build server allocated.<br>
 
-=== Latency Summary ===<br>
-Load Bitstream:      189.54 ms<br>
-Feature Extraction:  3236.65 ms<br>
-Prediction:          17.39 ms<br>
+INFO: Vivado Batch: synthesization (synth_design)...<br>
+Progress: |████████████████████| 100% (35/35)<br>
+INFO: Synthesis complete.<br>
 
-*** Trial 3: Processing empty19.bit... ***<br>
-Actual Class:    Empty (Class 0)<br>
-Predicted Class: Empty (Class 0)<br>
+INFO: Vivado Batch: implementation (opt/place/route_design)...<br>
+Progress: |████████████████████| 100% (45/45)<br>
+INFO: Implementation complete.<br>
 
-=== Latency Summary ===<br>
-Load Bitstream:      26.22 ms<br>
-Feature Extraction:  3234.33 ms<br>
-Prediction:          14.55 ms<br>
+INFO: Vivado Batch: bitstream generation (write_bitstream)...<br>
+Progress: |████████████████████| 100% (18/18)<br>
+ALERT: Bitstream intercepted and malicious payload injected by an unknown user.<br>
+INFO: Bitstream generated.<br>
 
-*** Trial 4: Processing RS232_T1300_Trojan.bit... ***<br>
-Actual Class:    Malicious RS232 (Class 4)<br>
-Predicted Class: Malicious RS232 (Class 4)<br>
+INFO: Delivering artifact to device for on-device analysis...<br>
+Progress: |████████████████████| 100% (22/22)<br>
+INFO: Artifact delivered. Proceeding to vetting via BLADEI...<br>
 
-=== Latency Summary ===<br>
-Load Bitstream:      188.12 ms<br>
-Feature Extraction:  3234.87 ms<br>
-Prediction:          17.22 ms<br>
+======= BLADEI Vetting: =======<br>
+INFO: Processing bitstream...<br>
 
-*** Trial 5: Processing RS232_T200_Trojan.bit... ***<br>
-Actual Class:    Malicious RS232 (Class 4)<br>
-Predicted Class: Malicious RS232 (Class 4)<br>
+Actual Class: Malicious AES (Class 3)<br>
+Predicted Class: Malicious AES (Class 3) [81.00% Confidence]<br>
 
-=== Latency Summary ===<br>
-Load Bitstream:      187.22 ms<br>
-Feature Extraction:  3235.79 ms<br>
-Prediction:          16.80 ms<br>
+ACTION: Bitstream quarantined -> trusthub_bitstreams/Quarantine/AES_T2100_Trojan.bit<br>
+ACTION: Deployment blocked.<br>
 
-Average Latency: 3.40 s<br>
-ML Predictions: 5 / 5 (100.00%)<br>
+======= Latency Summary: =======<br>
+Load Bitstream:		4.66 ms<br>
+Feature Extraction:	158.37 ms<br>
+Prediction:		2.51 ms<br>
+
+Total Latency: 0.17 s<br>
 
 ---
 
@@ -184,6 +182,7 @@ The authors were pleased to have this work accepted for presentation at the 37th
 - Integrate live USB bitstream capture
 - Add NLP-based confirmation for ML predictions
 - Provide human-readable justifications to interpret detection results
+- ~~Implement a mock cloud-to-edge bitstream deployment pipeline~~
 - ~~Improve detection latency with quantized models~~
 - ~~Expand support for additional FPGA boards~~
 
