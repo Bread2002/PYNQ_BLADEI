@@ -198,7 +198,7 @@ def evaluate_best_model(classifiers, cv_results, X_train_smote, y_train_smote, X
 # --------------------------
 # Step 9: Quantize ML Model
 # --------------------------
-def quantize_model(best_model, tsvd):
+def quantize_model(best_model, tsvd, dtype=np.float16):
     print(f"=== Quantizing ML components... ===")
     
     # Create the model_components directory, if it doesn't exist
