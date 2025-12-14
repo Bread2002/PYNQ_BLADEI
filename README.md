@@ -179,9 +179,8 @@ The authors were pleased to have this work accepted for presentation at the 37th
 ---
 
 ## 🛠️ Future Work
-- Integrate live USB bitstream capture
-- Add NLP-based confirmation for ML predictions
-- Provide human-readable justifications to interpret detection results
+- Expand the current dataset with more SOTA benchmarks (ISCAS'85, ISCAS'89, ITC'02, and ITC'99)
+- Add a CNN-based image classification model to authenticate ML predictions
 - ~~Implement a mock cloud-to-edge bitstream deployment pipeline~~
 - ~~Improve detection latency with quantized models~~
 - ~~Expand support for additional FPGA boards~~
