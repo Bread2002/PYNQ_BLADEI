@@ -125,10 +125,12 @@ This project is divided into two parts:
 ---
 
 ## 📈 Example Output
+Press 'ENTER' to the begin simulation...<br>
+
 ======= Cloud Submission Pipeline (Simulated): =======<br>
-INFO: User submission in-process -> AES_T2100.v<br>
+INFO: Processing user submission -> RS232_T500.v<br>
 INFO: Establishing secure session with cloud FPGA service...<br>
-INFO: HDL source identified: AES_T2100.v<br>
+INFO: HDL source identified: RS232_T500.v<br>
 
 INFO: Uploading HDL package to remote workspace...<br>
 Progress: |████████████████████| 100% (30/30)<br>
@@ -158,18 +160,32 @@ INFO: Artifact delivered. Proceeding to vetting via BLADEI...<br>
 ======= BLADEI Vetting: =======<br>
 INFO: Processing bitstream...<br>
 
-Actual Class: Malicious AES (Class 3)<br>
-Predicted Class: Malicious AES (Class 3) [81.00% Confidence]<br>
+Actual Class: Malicious RS232 (Class 4)<br>
+Predicted Class: Malicious RS232 (Class 4) [84.00% Confidence]<br>
 
-ACTION: Bitstream quarantined -> trusthub_bitstreams/Quarantine/AES_T2100_Trojan.bit<br>
+ACTION: Bitstream quarantined -> trusthub_bitstreams/Quarantine/RS232_T1700_Trojan.bit<br>
 ACTION: Deployment blocked.<br>
 
 ======= Latency Summary: =======<br>
-Load Bitstream:		4.66 ms<br>
-Feature Extraction:	158.37 ms<br>
-Prediction:		2.51 ms<br>
+Load Bitstream:         21.95 ms<br>
+Feature Extraction:     3212.97 ms<br>
+Prediction:             14.26 ms<br>
 
-Total Latency: 0.17 s<br>
+Total Latency: 3.25 s<br>
+
+======= System Information: =======<br>
+System: Linux<br>
+Node Name: pynq<br>
+Release: 6.6.10-xilinx-v2024.1-g08e597ec1786<br>
+Version: #1 SMP PREEMPT Sat Apr 27 05:22:24 UTC 2024<br>
+Machine: armv7l<br>
+Processor: armv7l<br>
+
+======= CPU Information: =======<br>
+CPU Cores: 2<br>
+Logical Processors: 2<br>
+CPU Usage per Core: [1.0, 20.4]<br>
+Total RAM: 491.6640625 MB<br>
 
 ---
 
