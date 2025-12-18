@@ -47,31 +47,20 @@ This project is divided into two parts:
 > - Python Packages: `scikit-learn`, `numpy`, `scipy`, `imblearn`
 
 > ⚠️ **Note:**
-> On **ARMv7 (32-bit)** boards (e.g., PYNQ-Z1/Z2), training is not supported. These boards lack prebuilt wheels and have insufficient resources for model training. Use a general-purpose CPU (e.g., laptop, workstation, or server) instead. If you take this route, *skip Steps 2 and 4* and ***comment out the "PYNQ-specific Packages" from `requirements.txt`***.<br>
-> On **ARMv8 (64-bit)** boards (e.g., Zynq UltraScale+, Kria, RFSoC), you may train directly on the board if sufficient resources are available.
+> Training should be performed on a general-purpose machine (laptop, workstation, or server) for **both ARMv7 and ARMv8** targets. While some ARMv8 boards *may* be capable of training, it is not the intended workflow here—training is heavier, package availability can be inconsistent, and it’s typically slower and less reproducible than running on a PC.  
 
 1. Clone the Repository:
    ```bash
    git clone https://github.com/Bread2002/PYNQ_BLADEI.git
    cd PYNQ_BLADEI
    ```
-
-2. Source the PYNQ Virtual Environment:
-   ```bash
-   source /usr/local/share/pynq-venv/bin/activate
-   ```
    
-3. Install Dependencies:
+2. Install Dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Deactivate the PYNQ Virtual Environment:
-   ```bash
-   deactivate
-   ```
-
-5. Run the Training Script:
+3. Run the Training Script:
    ```bash
    python train_model.py
    ```
@@ -91,11 +80,6 @@ This project is divided into two parts:
 > **Requirements:**
 > - A supported FPGA board with PYNQ v3.1
 > - Quantized model components (via on-board training or exported archive)
-
-> ⚠️ **Note:**
-> If you are on an **ARMv8 (64-bit)** board (e.g., UltraScale+, Kria, RFSoC), you may have trained directly on the device. In this case, *skip to Step 3*.<br>
-> If you are on an **ARMv7 (32-bit)** board (e.g., PYNQ-Z1/Z2), *begin at Step 1*. Since you cannot train on the board, you must import the archive.
-
 
 1. Import the Archive to your PYNQ board via Jupyter Notebook or SSH/SFTP
 
@@ -124,52 +108,19 @@ This project is divided into two parts:
 
 ---
 
-## 📈 Example Output
-Press 'ENTER' to the begin simulation...<br>
-
-======= Cloud Submission Pipeline (Simulated): =======<br>
-INFO: Processing user submission -> RS232_T500.v<br>
-INFO: Establishing secure session with cloud FPGA service...<br>
-INFO: HDL source identified: RS232_T500.v<br>
-
-INFO: Uploading HDL package to remote workspace...<br>
-Progress: |████████████████████| 100% (30/30)<br>
-INFO: Upload complete.<br>
-
-INFO: Job queued for synthesis/implementation...<br>
-Progress: |████████████████████| 100% (12/12)<br>
-INFO: Build server allocated.<br>
-
-INFO: Vivado Batch: synthesization (synth_design)...<br>
-Progress: |████████████████████| 100% (35/35)<br>
-INFO: Synthesis complete.<br>
-
-INFO: Vivado Batch: implementation (opt/place/route_design)...<br>
-Progress: |████████████████████| 100% (45/45)<br>
-INFO: Implementation complete.<br>
-
-INFO: Vivado Batch: bitstream generation (write_bitstream)...<br>
-Progress: |████████████████████| 100% (18/18)<br>
-ALERT: Bitstream intercepted and malicious payload injected by an unknown user.<br>
-INFO: Bitstream generated.<br>
-
-INFO: Delivering artifact to device for on-device analysis...<br>
-Progress: |████████████████████| 100% (22/22)<br>
-INFO: Artifact delivered. Proceeding to vetting via BLADEI...<br>
-
+## 📈 Sample Output of Mock Deployment Pipeline
 ======= BLADEI Vetting: =======<br>
-INFO: Processing bitstream...<br>
+Processing bitstream: AES-T2000_TjFree_20251218_152520.bit<br>
 
-Actual Class: Malicious RS232 (Class 4)<br>
-Predicted Class: Malicious RS232 (Class 4) [84.00% Confidence]<br>
+Actual Class: Benign AES (Class 1)<br>
+Predicted Class: Benign AES (Class 1) [80.00% Confidence]<br>
 
-ACTION: Bitstream quarantined -> trusthub_bitstreams/Quarantine/RS232_T1700_Trojan.bit<br>
-ACTION: Deployment blocked.<br>
+ACTION: Bitstream passed vetting. Proceed to deployment.<br>
 
 ======= Latency Summary: =======<br>
-Load Bitstream:         21.95 ms<br>
-Feature Extraction:     3212.97 ms<br>
-Prediction:             14.26 ms<br>
+Load Bitstream:		21.85 ms<br>
+Feature Extraction:	3217.94 ms<br>
+Prediction:		14.83 ms<br>
 
 Total Latency: 3.25 s<br>
 
@@ -184,7 +135,7 @@ Processor: armv7l<br>
 ======= CPU Information: =======<br>
 CPU Cores: 2<br>
 Logical Processors: 2<br>
-CPU Usage per Core: [1.0, 20.4]<br>
+CPU Usage per Core: [99.5, 0.5]<br>
 Total RAM: 491.6640625 MB<br>
 
 ---
