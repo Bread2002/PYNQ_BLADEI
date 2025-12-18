@@ -234,7 +234,7 @@ def compress_to_tar_gz(output_file, targets):  # Helper function for compressing
 
 def export_pipeline(best_model_name):
     print(f"=== Compressing pipeline for PYNQ Deployment... ===")
-    targets = ["trusthub_bitstreams", "model_components", "deploy_model.py"]
+    targets = ["model_components", "deploy_model.py"]
     output_file = "PYNQ_BLADEI.tar.gz"
     compress_to_tar_gz(output_file, targets)
     print(f"*** Compression complete! Archive saved as '{output_file}'... ***")
@@ -253,12 +253,7 @@ def main():
     classifiers, cv_results = compare_classifiers(X_train_smote, y_train_smote)
     best_model, best_model_name = evaluate_best_model(classifiers, cv_results, X_train_smote, y_train_smote, X_test, y_test)  
     quantize_model(best_model, tsvd)
-    
-    use_armv7 = input("Are you deploying on an ARMv7 board? (y/n): ").strip().lower()
-    if use_armv7 == 'y':
-        export_pipeline(best_model_name)
-    else:
-        print("*** Skipping pipeline exportation... ***")
+    export_pipeline(best_model_name)
 
 if __name__ == "__main__":
     main()
