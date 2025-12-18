@@ -5,9 +5,3 @@ scipy==1.10.1
 # Machine Learning Packages
 scikit-learn==1.0.2
 imbalanced-learn==0.10.1
-
-# PYNQ-specific Packages
-pynq==3.1.0
-pynqutils==0.1.1
-grpcio==1.64.0
-grpcio-tools==1.64.0
