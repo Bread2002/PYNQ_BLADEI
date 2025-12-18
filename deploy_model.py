@@ -88,7 +88,7 @@ def run_trial(bitstream_path, label_map):
 
     # Process the bitstream
     print("======= BLADEI Vetting: =======")
-    print(f"INFO: Processing bitstream: {filename}")
+    print(f"Processing bitstream: {filename}")
     actual_class = get_actual_class(filename)  # Determine the actual class
 
     # Measure the load time
