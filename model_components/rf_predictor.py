@@ -1,36 +1,67 @@
 import numpy as np
 import json
 import os
-from collections import Counter
 
-tsvd_components = np.load(os.path.join(os.path.dirname(__file__), "tsvd_components.npy"))
-n_classes = 5
+HERE = os.path.dirname(__file__)
 
-# Loads a pre-trained random forest model from JSON
-with open(os.path.join(os.path.dirname(__file__), "rf_forest.json"), "r") as f:  
+with open(os.path.join(HERE, "meta.json"), "r") as f:
+    META = json.load(f)
+
+N_CLASSES = int(META.get("n_classes", 5))
+FEATURE_LEN = int(META.get("feature_len", 266))
+
+with open(os.path.join(HERE, "rf_forest.json"), "r") as f:
     forest = json.load(f)
 
-# Applies dimensionality reduction using Truncated SVD components
-def transform_tsvd(x, components):
-    return np.dot(x, components.T)
+def _as_feature_vec(x) -> np.ndarray:
+    x = np.asarray(x, dtype=np.float32).ravel()
+    if x.size != FEATURE_LEN:
+        raise ValueError(
+            f"Feature length mismatch: got {x.size}, expected {FEATURE_LEN}. "
+            "Deploy-time feature extraction must match training-time features."
+        )
+    return x
 
-def predict_tree(tree, x):
+def _leaf_value(tree, x: np.ndarray) -> np.ndarray:
+    """
+    Traverse tree, return leaf class-count vector (length N_CLASSES).
+    Stored values are float16 in JSON; we accumulate as float32.
+    """
     node = 0
-    while tree["children_left"][node] != -1:  # Traverse the model tree
-        feature = tree["feature"][node]
-        threshold = tree["threshold"][node]
+    while tree["children_left"][node] != -1:
+        feature = int(tree["feature"][node])
+        threshold = float(tree["threshold"][node])
         if x[feature] <= threshold:
-            node = tree["children_left"][node]
+            node = int(tree["children_left"][node])
         else:
-            node = tree["children_right"][node]
-    return np.argmax(tree["value"][node])  # Pick the class with the highest count
+            node = int(tree["children_right"][node])
 
-# Reduce feature dimensions using TSVD, then predict with the model
+    v = np.asarray(tree["value"][node], dtype=np.float32).ravel()
+    if v.size != N_CLASSES:
+        # Defensive: some sklearn dumps can have shape issues if labels differed
+        out = np.zeros(N_CLASSES, dtype=np.float32)
+        out[: min(N_CLASSES, v.size)] = v[: min(N_CLASSES, v.size)]
+        return out
+    return v
+
 def predict_bitstream(features):
-    reduced = transform_tsvd(features, tsvd_components)
-    
-    # Get individual tree votes
-    votes = [predict_tree(tree, reduced) for tree in forest]
-    pred = max(set(votes), key=votes.count)
-    
-    return pred
+    """
+    Soft vote:
+      - sum leaf class-count vectors across trees
+      - normalize to probabilities
+      - confidence = max prob * 100
+    """
+    x = _as_feature_vec(features)
+
+    accum = np.zeros(N_CLASSES, dtype=np.float32)
+    for tree in forest:
+        accum += _leaf_value(tree, x)
+
+    total = float(np.sum(accum))
+    if total <= 0.0:
+        return 0, 0.0
+
+    probs = accum / total
+    pred = int(np.argmax(probs))
+    conf = float(np.max(probs) * 100.0)
+    return pred, conf
