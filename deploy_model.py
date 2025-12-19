@@ -18,7 +18,7 @@ from model_components.rf_predictor import predict_bitstream
 # Step 0: Suppress Warnings
 # --------------------------
 warnings.filterwarnings("ignore", category=FutureWarning)  # Supress future warnings
-warnings.filterwarnings("ignore", category=UserWarning)  # Supress user warnings
+warnings.filterwarnings("ignore", category=UserWarning)    # Supress user warnings
 
 # --------------------------
 # Step 1: Get Bitstream from Command Line Argument
@@ -28,13 +28,13 @@ def get_bitstream_from_args():
         print("ERROR: No bitstream file provided.")
         print("Usage: python3 deploy_model.py <path_to_bitstream>")
         sys.exit(1)
-    
+
     bitstream_path = sys.argv[1]
-    
+
     if not os.path.isfile(bitstream_path):
         print(f"ERROR: Bitstream file not found: {bitstream_path}")
         sys.exit(1)
-    
+
     return bitstream_path
 
 # --------------------------
@@ -70,68 +70,97 @@ def get_actual_class(filename):
 # Step 4: Ensure Quarantine Folder
 # --------------------------
 def ensure_quarantine_folder(base_path):
-    quarantine_path = os.path.join(base_path, "Quarantine")  # Initialize quarantine path
+    quarantine_path = os.path.join(base_path, "Quarantine")
     if not os.path.isdir(quarantine_path):
-        os.makedirs(quarantine_path, exist_ok=True)  # Create quarantine folder if it does not exist
+        os.makedirs(quarantine_path, exist_ok=True)
     return quarantine_path
 
 # --------------------------
-# Step 2: Map Labels
+# Step 5: Feature Extraction (must match train_model.py: 256 + 10 = 266)
+# --------------------------
+def extract_features_from_bytes(data: bytes) -> np.ndarray:
+    size = len(data)
+    if size == 0:
+        return np.zeros(266, dtype=np.float32)
+
+    # 256-byte normalized histogram
+    counts = Counter(data)
+    dense_vec = np.zeros(256, dtype=np.float32)
+    for byte_val, count in counts.items():
+        dense_vec[int(byte_val)] = float(count) / float(size)
+
+    # 10 extended stats (NumPy-only, no SciPy)
+    byte_array = np.frombuffer(data, dtype=np.uint8).astype(np.float32)
+    mean = float(byte_array.mean())
+    std = float(byte_array.std())
+
+    if std > 0.0:
+        z = (byte_array - mean) / std
+        skew_v = float(np.mean(z ** 3))
+        kurt_v = float(np.mean(z ** 4) - 3.0)  # excess kurtosis
+    else:
+        skew_v = 0.0
+        kurt_v = 0.0
+
+    p = dense_vec[dense_vec > 0.0]
+    ent = float(-np.sum(p * np.log(p))) if p.size else 0.0
+
+    max_bin = float(np.max(dense_vec))
+    min_nonzero = float(np.min(p)) if p.size else 0.0
+    num_bins_gt_001 = float(np.sum(dense_vec > 0.01))
+    byte_sum = float(np.sum(byte_array))
+    size_mb = float(size) / 1e6
+
+    extended_features = np.array(
+        [mean, std, skew_v, kurt_v, ent, max_bin, min_nonzero, num_bins_gt_001, byte_sum, size_mb],
+        dtype=np.float32,
+    )
+
+    return np.concatenate([dense_vec, extended_features]).astype(np.float32)
+
+# --------------------------
+# Step 6: Run Trial
 # --------------------------
 def run_trial(bitstream_path, label_map):
     filename = os.path.basename(bitstream_path)
     base_path = os.path.dirname(bitstream_path)
-    quarantine_path = ensure_quarantine_folder(base_path)  # Ensure quarantine folder exists
+    quarantine_path = ensure_quarantine_folder(base_path)
 
-    # Remove extension to present as an HDL name
-    hdl_name = os.path.splitext(filename)[0]
-
-    # Process the bitstream
     print("======= BLADEI Vetting: =======")
     print(f"Processing bitstream: {filename}")
-    actual_class = get_actual_class(filename)  # Determine the actual class
+    actual_class = get_actual_class(filename)
 
-    # Measure the load time
+    # Load bitstream
     start_load = time.time()
     with open(bitstream_path, 'rb') as f:
         data = f.read()
     end_load = time.time()
 
-    # Measure the time to extract features
+    # Extract features
     start_feat = time.time()
-    size = len(data)
-    if size == 0:
-        features = np.zeros(256)
-    else:
-        counts = Counter(data)
-        dense_vec = np.zeros(256)
-        for byte_val, count in counts.items():
-            dense_vec[byte_val] = count / size
-        features = dense_vec
+    features = extract_features_from_bytes(data)
     end_feat = time.time()
 
-    # Measure the ML prediction time
+    # Predict
     start_pred = time.time()
     ml_prediction, ml_conf = predict_bitstream(features)
     end_pred = time.time()
 
-    # Compute each time in ms
+    # Timing
     load_time_ms = (end_load - start_load) * 1000
     feat_time_ms = (end_feat - start_feat) * 1000
     pred_time_ms = (end_pred - start_pred) * 1000
+    total_time_ms = load_time_ms + feat_time_ms + pred_time_ms
 
-    total_time_ms = (load_time_ms + feat_time_ms + pred_time_ms)  # Track total runtime
-
-    # Display the prediction results
-    predicted_label = label_map.get(int(ml_prediction), "Unknown")  # Map prediction to label
+    predicted_label = label_map.get(int(ml_prediction), "Unknown")
     print(f"\nActual Class: {actual_class}")
     print(f"Predicted Class: {predicted_label} [{ml_conf:.2f}% Confidence]")
 
-    # Quarantine malicious bitstream types
+    # Quarantine
     if ("Malicious" in predicted_label) or ("Empty" in predicted_label):
         quarantined_file = os.path.join(quarantine_path, filename)
         try:
-            shutil.move(bitstream_path, quarantined_file)  # Move bitstream to quarantine
+            shutil.move(bitstream_path, quarantined_file)
             print(f"\nACTION: Bitstream quarantined -> {quarantined_file}")
             print("ACTION: Deployment blocked.\n")
         except Exception as e:
@@ -139,7 +168,7 @@ def run_trial(bitstream_path, label_map):
     else:
         print("\nACTION: Bitstream passed vetting. Proceed to deployment.\n")
 
-    # Display the latency summary
+    # Latency summary
     print(f"======= Latency Summary: =======")
     print(f"Load Bitstream:\t\t{load_time_ms:.2f} ms")
     print(f"Feature Extraction:\t{feat_time_ms:.2f} ms")
@@ -172,7 +201,6 @@ def main():
     label_map = get_label_map()
 
     run_trial(bitstream_path, label_map)
-
     print_system_info()
 
 if __name__ == "__main__":
