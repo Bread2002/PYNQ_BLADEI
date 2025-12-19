@@ -4,4 +4,3 @@ scipy==1.10.1
 
 # Machine Learning Packages
 scikit-learn==1.0.2
-imbalanced-learn==0.10.1
