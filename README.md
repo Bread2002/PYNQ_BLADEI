@@ -47,7 +47,7 @@ This project is divided into two parts:
 > - Python Packages: `scikit-learn`, `numpy`, `scipy`
 
 > ⚠️ **Note:**
-> Training should be performed on a general-purpose machine (laptop, workstation, or server) for **both ARMv7 and ARMv8** targets. While some ARMv8 boards *may* be capable of training, it is not the intended workflow here—training is heavier, package availability can be inconsistent, and it’s typically slower and less reproducible than running on a PC.  
+> Training should be performed on a general-purpose machine (laptop, workstation, or server) for **both ARMv7 and ARMv8** targets. While some ARMv8 boards *may* be capable of training, it is not the recommended workflow. Training is heavier, package availability can be inconsistent, and it’s typically slower and less reproducible than running on a PC.  
 
 1. Clone the Repository:
    ```bash
