@@ -12,8 +12,8 @@ This repository contains an embedded deployment pipeline for detecting **malicio
 ## ⚙️ Features
 
 - 🔍 **Byte-frequency analysis** of binary `.bit` files
-- 📉 Dimensionality reduction and class balancing via **TSVD** and **SMOTE**
-- 📊 Real-time inference using trained **scikit-learn classifiers** (e.g., Random Forest)
+- 🧩 Lightweight **byte-level + statistical** feature extraction
+- 📊 Real-time inference using a trained **Random Forest** with a custom, dependency-light predictor
 - ⚡ Deployment-ready for **ARMv7 (e.g., PYNQ-Z1/Z2, Zynq-7000 SoC)** and **ARMv8 (e.g., Zynq UltraScale+ MPSoC, RFSoC, Kria) boards**
 - 🧪 Verified with state-of-the-art (SOTA) bitstreams derived from **Trust-Hub** benchmarks
 
@@ -44,7 +44,7 @@ This project is divided into two parts:
 
 > **Requirements:**
 > - Python 3.8+
-> - Python Packages: `scikit-learn`, `numpy`, `scipy`, `imblearn`
+> - Python Packages: `scikit-learn`, `numpy`, `scipy`
 
 > ⚠️ **Note:**
 > Training should be performed on a general-purpose machine (laptop, workstation, or server) for **both ARMv7 and ARMv8** targets. While some ARMv8 boards *may* be capable of training, it is not the intended workflow here—training is heavier, package availability can be inconsistent, and it’s typically slower and less reproducible than running on a PC.  
@@ -66,12 +66,10 @@ This project is divided into two parts:
    ```
 
 #### ***Features:***
-- Byte-level and structural feature extraction from `.bit` files  
-- Dimensionality reduction via TSVD  
-- Class balancing with SMOTE  
-- Training multiple classifiers (e.g., Random Forest, SVM)  
-- Evaluation using k-Fold Cross-Validation  
-- Model and TSVD components exported as a `.tar.gz` archive for PYNQ deployment on ARMv7 boards
+- Byte-frequency feature extraction from `.bit` files (256-dimensional normalized histogram)
+- Statistical augmentation features (e.g., mean, std, skew, kurtosis, entropy, density metrics)
+- Training and evaluation using k-Fold Cross-Validation
+- Best-performing model exported as compact artifacts (JSON + NumPy arrays) and bundled into a `.tar.gz` archive for PYNQ deployment
 
 ---
 
@@ -98,31 +96,32 @@ This project is divided into two parts:
 
 #### Features:
 - Loads `.bit` files from local storage  
-- Extracts sparse and structural features  
-- Applies TSVD transformation  
+- Extracts byte-frequency + statistical features
 - Predicts class (`Benign`, `Malicious`, or `Empty`) using the trained model
 - Displays prediction result with latency breakdown:
   - Load time  
   - Feature extraction time  
   - Inference time
+- Quarantines suspicious bitstreams
 
 ---
 
 ## 📈 Sample Output of Mock Deployment Pipeline
+### Benign Bitstream
 ======= BLADEI Vetting: =======<br>
-Processing bitstream: AES-T2000_TjFree_20251218_152520.bit<br>
+Processing bitstream: AES-T2100_TjFree_20251218_085702.bit<br>
 
 Actual Class: Benign AES (Class 1)<br>
-Predicted Class: Benign AES (Class 1) [80.00% Confidence]<br>
+Predicted Class: Benign AES (Class 1) [94.67% Confidence]<br>
 
 ACTION: Bitstream passed vetting. Proceed to deployment.<br>
 
 ======= Latency Summary: =======<br>
-Load Bitstream:		21.85 ms<br>
-Feature Extraction:	3217.94 ms<br>
-Prediction:		14.83 ms<br>
+Load Bitstream:         24.14 ms<br>
+Feature Extraction:     6124.15 ms<br>
+Prediction:             69.33 ms<br>
 
-Total Latency: 3.25 s<br>
+Total Latency: 6.22 s<br>
 
 ======= System Information: =======<br>
 System: Linux<br>
@@ -135,7 +134,69 @@ Processor: armv7l<br>
 ======= CPU Information: =======<br>
 CPU Cores: 2<br>
 Logical Processors: 2<br>
-CPU Usage per Core: [99.5, 0.5]<br>
+CPU Usage per Core: [0.4, 99.9]<br>
+Total RAM: 491.6640625 MB<br>
+
+### Malicious Bitstream
+======= BLADEI Vetting: =======<br>
+Processing bitstream: AES-T500_TjIn_20251218_163136.bit<br>
+
+Actual Class: Malicious AES (Class 3)<br>
+Predicted Class: Malicious AES (Class 3) [90.00% Confidence]<br>
+
+ACTION: Bitstream quarantined -> ./mock_deployment/Quarantine/AES-T500_TjIn_20251218_163136.bit<br>
+ACTION: Deployment blocked.<br>
+
+======= Latency Summary: =======<br>
+Load Bitstream:         105.69 ms<br>
+Feature Extraction:     6105.57 ms<br>
+Prediction:             68.96 ms<br>
+
+Total Latency: 6.28 s<br>
+
+======= System Information: =======<br>
+System: Linux<br>
+Node Name: pynq<br>
+Release: 6.6.10-xilinx-v2024.1-g08e597ec1786<br>
+Version: #1 SMP PREEMPT Sat Apr 27 05:22:24 UTC 2024<br>
+Machine: armv7l<br>
+Processor: armv7l<br>
+
+======= CPU Information: =======<br>
+CPU Cores: 2<br>
+Logical Processors: 2<br>
+CPU Usage per Core: [0.5, 98.8]<br>
+Total RAM: 491.6640625 MB<br>
+
+### Empty Bitstream
+======= BLADEI Vetting: =======<br>
+Processing bitstream: empty2_Empty_20251219_013937.bit<br>
+
+Actual Class: Empty (Class 0)<br>
+Predicted Class: Empty (Class 0) [70.67% Confidence]<br>
+
+ACTION: Bitstream quarantined -> ./mock_deployment/Quarantine/empty2_Empty_20251219_013937.bit<br>
+ACTION: Deployment blocked.<br>
+
+======= Latency Summary: =======
+Load Bitstream:         178.80 ms<br>
+Feature Extraction:     6140.21 ms<br>
+Prediction:             58.70 ms<br>
+
+Total Latency: 6.38 s<br>
+
+======= System Information: =======<br>
+System: Linux<br>
+Node Name: pynq<br>
+Release: 6.6.10-xilinx-v2024.1-g08e597ec1786<br>
+Version: #1 SMP PREEMPT Sat Apr 27 05:22:24 UTC 2024<br>
+Machine: armv7l<br>
+Processor: armv7l<br>
+
+======= CPU Information: =======<br>
+CPU Cores: 2<br>
+Logical Processors: 2<br>
+CPU Usage per Core: [0.7, 98.1]<br>
 Total RAM: 491.6640625 MB<br>
 
 ---
