@@ -5,7 +5,7 @@
 
 ## 📌 Project Overview
 
-This repository contains an embedded deployment pipeline for detecting **malicious FPGA bitstreams** using a trained machine learning (ML) model. Bitstreams are configuration files that can be weaponized to introduce hardware Trojans, posing serious risks in shared or cloud-hosted reconfigurable systems. This project leverages a lightweight, byte-level classification approach and enables **on-device malware detection** for **PYNQ-supported FPGA boards**, without requiring reverse engineering techniques or access to original source code or netlists. Benchmark designs, including AES-128 and RS232 variants, were obtained from Trust-Hub, then synthesized, implemented, and categorized as benign, malicious, or empty `.bit` files
+This repository contains an embedded deployment pipeline for detecting **malicious FPGA bitstreams** using a trained machine learning (ML) model. Bitstreams are configuration files that can be weaponized to introduce hardware Trojans, posing serious risks in shared or cloud-hosted reconfigurable systems. This project leverages a lightweight, byte-level classification approach and enables **on-device malware detection** for **PYNQ-supported FPGA boards**, without requiring reverse engineering techniques or access to original source code or netlists. The pipeline features **dual-head classification** for both Trojan detection and hardware family identification across six categories. Benchmark designs from Trust-Hub (AES, RS232, ITC'99, ISCAS'89, etc.) were synthesized, implemented, and used for training and validation.
 
 ---
 
@@ -13,7 +13,7 @@ This repository contains an embedded deployment pipeline for detecting **malicio
 
 - 🔍 **Byte-frequency analysis** of binary `.bit` files
 - 🧩 Lightweight **byte-level + statistical** feature extraction
-- 📊 Real-time inference using a trained **Random Forest** with a custom, dependency-light predictor
+- 📊 Real-time inference using a supervised **Random Forest** with a custom, dependency-light predictor
 - ⚡ Deployment-ready for **ARMv7 (e.g., PYNQ-Z1/Z2, Zynq-7000 SoC)** and **ARMv8 (e.g., Zynq UltraScale+ MPSoC, RFSoC, Kria) boards**
 - 🧪 Verified with state-of-the-art (SOTA) bitstreams derived from **Trust-Hub** benchmarks
 
@@ -21,13 +21,17 @@ This repository contains an embedded deployment pipeline for detecting **malicio
 
 ## 📂 Repository Structure
 pynq-maldetect/<br>
-├── trusthub_bitstreams/ ***# Sample `.bit` files (Benign, Malicious, Empty)***<br>
-├── model_components/ ***# Quantized ML model components***<br>
-├── train_model.py ***# Model training and export for PYNQ***<br>
-├── deploy_model.py ***# Model deployment for on-device inference***<br>
-├── requirements.txt ***# Python dependencies***<br>
+├── trusthub_bitstreams.zip ***# Sample `.bit` files (Benign or Malicious)***<br>
+├── model_components/ ***# Output directory for trained models***<br>
 ├── LICENSE.md<br>
-└── README.md<br>
+├── PYNQ_BLADEI.tar.gz ***# Pre-trained models***
+├── README.md<br>
+├── deploy_model.py ***# Model deployment for on-device inference***<br>
+├── requirements.txt ***# Python dependencies for training***<br>
+└── train_model.py ***# Model training and export for PYNQ***<br>
+
+> ⚠️ **Notice:**
+> Due to file size constraints, the sample dataset (`trusthub_bitstreams/`) is hosted separately on the [Releases](https://github.com/Bread2002/PYNQ_BLADEI/releases/tag/v3.0.0) page. The file is password-protected, however, access is available upon request: ryes@email.sc.edu
 
 ---
 
@@ -44,7 +48,7 @@ This project is divided into two parts:
 
 > **Requirements:**
 > - Python 3.8+
-> - Python Packages: `scikit-learn`, `numpy`, `scipy`
+> - Python Packages: `scikit-learn`, `numpy`, `scipy`, `imblearn`
 
 > ⚠️ **Note:**
 > Training should be performed on a general-purpose machine (laptop, workstation, or server) for **both ARMv7 and ARMv8** targets. While some ARMv8 boards *may* be capable of training, it is not the recommended workflow. Training is heavier, package availability can be inconsistent, and it’s typically slower and less reproducible than running on a PC.  
@@ -64,12 +68,26 @@ This project is divided into two parts:
    ```bash
    python train_model.py
    ```
+   
+4. Optional Flags for TSVD and SMOTE:
+   ```bash
+   python train_model.py --tsvd  # Enable TSVD dimensionality reduction
+   python train_model.py --smote  # Enable SMOTE oversampling
+   python train_model.py --tsvd --smote  # Enable both
+   ```
 
-#### ***Features:***
-- Byte-frequency feature extraction from `.bit` files (256-dimensional normalized histogram)
-- Statistical augmentation features (e.g., mean, std, skew, kurtosis, entropy, density metrics)
-- Training and evaluation using k-Fold Cross-Validation
-- Best-performing model exported as compact artifacts (JSON + NumPy arrays) and bundled into a `.tar.gz` archive for PYNQ deployment
+#### Features:
+- **278-dimensional feature extraction** from `.bit` files:
+  - 256-bin normalized byte histogram
+  - 10 statistical features (mean, std, skew, kurtosis, entropy, etc.)
+  - 12 structural features (header patterns, segment analysis)
+- **Dual-head classification**:
+  - Trojan Detector (Benign vs Malicious)
+  - Family Classifier (CRYPTO, COMMS, MCU/CPU, BUS/DISPLAY, ITC99, and ISCAS89)
+- **Automated model selection** via classifier comparison and GridSearchCV hyperparameter tuning
+- Optional TSVD for dimensionality reduction (`--tsvd`)
+- Optional SMOTE for class imbalance handling (`--smote`)
+- Quantized model export as JSON for lightweight edge deployment
 
 ---
 
@@ -89,39 +107,44 @@ This project is divided into two parts:
     cd PYNQ_BLADEI
     ```
 
-3. Run the Deployment Script:
+3. Create a Deployment Directory:
+    ```bash
+    mkdir -p mock_deployment  # Add your bitstreams here for deployment
+    ```
+
+4. Run the Deployment Script:
    ```bash
-   python deploy_model.py
+   python deploy_model.py ./mock_deployment/bitstream.bit
    ```
 
 #### Features:
-- Loads `.bit` files from local storage  
-- Extracts byte-frequency + statistical features
-- Predicts class (`Benign`, `Malicious`, or `Empty`) using the trained model
-- Displays prediction result with latency breakdown:
-  - Load time  
-  - Feature extraction time  
+- Loads `.bit` files from local storage or command line argument
+- Extracts 278-dimensional feature vector (byte histogram + statistical + structural)
+- Displays prediction results with confidence scores
+- Latency breakdown
+  - Load time
+  - Feature extraction time
   - Inference time
-- Quarantines suspicious bitstreams
+- Automatically quarantines malicious bitstreams
 
 ---
 
 ## 📈 Sample Output of Mock Deployment Pipeline
 ### Benign Bitstream
 ======= BLADEI Vetting: =======<br>
-Processing bitstream: AES-T2100_TjFree_20251218_085702.bit<br>
+Processing bitstream: AES-T2000_TjFree_20251218_152520.bit<br>
 
-Actual Class: Benign AES (Class 1)<br>
-Predicted Class: Benign AES (Class 1) [94.67% Confidence]<br>
+Trojan Detection: Benign [64.8% Confidence]<br>
+Family Classification: CRYPTO [100.0% Confidence]<br>
 
 ACTION: Bitstream passed vetting. Proceed to deployment.<br>
 
 ======= Latency Summary: =======<br>
-Load Bitstream:         24.14 ms<br>
-Feature Extraction:     6124.15 ms<br>
-Prediction:             69.33 ms<br>
+Load Bitstream: 21.25 ms<br>
+Feature Extraction: 16462.59 ms<br>
+ML Prediction: 114.74 ms<br>
 
-Total Latency: 6.22 s<br>
+Total Latency: 16.60 s<br>
 
 ======= System Information: =======<br>
 System: Linux<br>
@@ -139,20 +162,20 @@ Total RAM: 491.6640625 MB<br>
 
 ### Malicious Bitstream
 ======= BLADEI Vetting: =======<br>
-Processing bitstream: AES-T500_TjIn_20251218_163136.bit<br>
+Processing bitstream: b15-T300_TjIn_20260106_114122.bit<br>
 
-Actual Class: Malicious AES (Class 3)<br>
-Predicted Class: Malicious AES (Class 3) [90.00% Confidence]<br>
+Trojan Detection: Malicious [71.5% Confidence]<br>
+Family Classification: ITC99 [95.0% Confidence]<br>
 
 ACTION: Bitstream quarantined -> ./mock_deployment/Quarantine/AES-T500_TjIn_20251218_163136.bit<br>
 ACTION: Deployment blocked.<br>
 
 ======= Latency Summary: =======<br>
-Load Bitstream:         105.69 ms<br>
-Feature Extraction:     6105.57 ms<br>
-Prediction:             68.96 ms<br>
+Load Bitstream: 21.64 ms<br>
+Feature Extraction: 16408.97 ms<br>
+ML Prediction: 131.15 ms<br>
 
-Total Latency: 6.28 s<br>
+Total Latency: 16.56 s<br>
 
 ======= System Information: =======<br>
 System: Linux<br>
@@ -168,37 +191,6 @@ Logical Processors: 2<br>
 CPU Usage per Core: [0.5, 98.8]<br>
 Total RAM: 491.6640625 MB<br>
 
-### Empty Bitstream
-======= BLADEI Vetting: =======<br>
-Processing bitstream: empty2_Empty_20251219_013937.bit<br>
-
-Actual Class: Empty (Class 0)<br>
-Predicted Class: Empty (Class 0) [70.67% Confidence]<br>
-
-ACTION: Bitstream quarantined -> ./mock_deployment/Quarantine/empty2_Empty_20251219_013937.bit<br>
-ACTION: Deployment blocked.<br>
-
-======= Latency Summary: =======
-Load Bitstream:         178.80 ms<br>
-Feature Extraction:     6140.21 ms<br>
-Prediction:             58.70 ms<br>
-
-Total Latency: 6.38 s<br>
-
-======= System Information: =======<br>
-System: Linux<br>
-Node Name: pynq<br>
-Release: 6.6.10-xilinx-v2024.1-g08e597ec1786<br>
-Version: #1 SMP PREEMPT Sat Apr 27 05:22:24 UTC 2024<br>
-Machine: armv7l<br>
-Processor: armv7l<br>
-
-======= CPU Information: =======<br>
-CPU Cores: 2<br>
-Logical Processors: 2<br>
-CPU Usage per Core: [0.7, 98.1]<br>
-Total RAM: 491.6640625 MB<br>
-
 ---
 
 ## 🤝 Acknowledgments
@@ -207,9 +199,10 @@ The authors were pleased to have this work accepted for presentation at the 37th
 ---
 
 ## 🛠️ Future Work
-- Expand the current dataset with more SOTA benchmarks (ISCAS'85, ISCAS'89, ITC'02, and ITC'99)
-- Add a CNN-based image classification model to authenticate ML predictions
-- ~~Implement a mock cloud-to-edge bitstream deployment pipeline~~
+- Develop a real-time, simulated cloud-to-edge deployment pipeline (HDL → Synthesis → BLADEI → FPGA)
+- Explore deep learning architectures (CNN, RNN, LSTM/ Transformer, etc.) for improved feature learning and detection accuracy
+- ~~Expand the current dataset with more SOTA benchmarks (ISCAS'89, ITC'99, etc.)~~
+- ~~Develop a mock cloud-to-edge bitstream deployment pipeline~~
 - ~~Improve detection latency with quantized models~~
 - ~~Expand support for additional FPGA boards~~
 

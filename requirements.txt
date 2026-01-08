@@ -1,6 +1,13 @@
+# Copyright (c) 2025, Rye Stahle-Smith; All rights reserved.
+# PYNQ BLADEI: Bitstream-Level Abnormality Detection for Embedded Inference
+# January 6th, 2026
+# Description: These packages are required for TRAINING the model (train_model.py)
+#              The deployment pipeline (deploy_model.py) uses only numpy, scipy, and json (included by default with PYNQ)
+
 # Core Scientific Packages
-numpy==1.21.5
-scipy==1.10.1
+numpy>=1.21.0
+scipy>=1.7.0
 
 # Machine Learning Packages
-scikit-learn==1.0.2
+scikit-learn>=1.0.0
+imbalanced-learn>=0.9.0
