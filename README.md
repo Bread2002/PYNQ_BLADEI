@@ -129,7 +129,7 @@ This project is divided into two parts:
 
 ---
 
-## 📈 Sample Output of Mock Deployment Pipeline
+## 📈 Sample Output
 ### Benign Bitstream
 ======= BLADEI Vetting: =======<br>
 Processing bitstream: AES-T2000_TjFree_20251218_152520.bit<br>
