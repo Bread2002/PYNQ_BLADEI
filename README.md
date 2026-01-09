@@ -24,7 +24,7 @@ pynq-maldetect/<br>
 ├── trusthub_bitstreams.zip ***# Sample `.bit` files (Benign or Malicious)***<br>
 ├── model_components/ ***# Output directory for trained models***<br>
 ├── LICENSE.md<br>
-├── PYNQ_BLADEI.tar.gz ***# Pre-trained models***
+├── PYNQ_BLADEI.tar.gz ***# Pre-trained models***<br>
 ├── README.md<br>
 ├── deploy_model.py ***# Model deployment for on-device inference***<br>
 ├── requirements.txt ***# Python dependencies for training***<br>
