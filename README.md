@@ -1,3 +1,13 @@
+> [!WARNING]
+> ## ⚠️ Repository Archived
+> This repository is no longer actively maintained and has been archived.
+>
+> 👉 **Looking for the current, actively maintained version?**  
+> Please visit the latest repository here: **https://github.com/Karakchi-Research/PYNQ_BLADEI**
+>
+> ---
+> If you have any questions or need help locating resources, feel free to reach out to the ryes@email.sc.edu
+
 # **BLADEI: Bitstream-Level Abnormality Detection for Embedded Inference**
 ### *Copyright (c) 2025, Rye Stahle-Smith* 
 
